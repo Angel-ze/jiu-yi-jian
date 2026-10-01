@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#f6f7f9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>就一件</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+:root{
+  --bg:#f6f7f9;
+  --card:#ffffff;
+  --ink:#141821;
+  --ink-2:#5b6472;
+  --ink-3:#9aa3b0;
+  --line:#e7eaef;
+  --accent:#2f6df6;
+  --ok:#12b76a;
+  --warn:#f79009;
+  --danger:#f04438;
+  --radius:20px;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1216; --card:#171b21; --ink:#eef1f5; --ink-2:#a3adbb; --ink-3:#6b7686;
+    --line:#242a33; --accent:#4b83f7;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+button{font-family:inherit;border:none;background:none;color:inherit;cursor:pointer}
+input,textarea{font-family:inherit}
+
+#app{
+  position:fixed; inset:0; display:flex; flex-direction:column;
+  padding:calc(var(--safe-t) + 8px) 18px calc(var(--safe-b) + 14px);
+  max-width:520px; margin:0 auto;
+}
+
+/* ---------- 顶栏 ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;height:44px;flex:none}
+.clock{font-size:15px;font-weight:600;color:var(--ink-3);font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.inbox-btn{
+  position:relative;display:flex;align-items:center;gap:6px;
+  font-size:13.5px;color:var(--ink-2);padding:8px 12px;border-radius:12px;
+  background:var(--card);border:1px solid var(--line);
+}
+.inbox-btn .dot{
+  position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;
+  background:var(--accent);display:none;
+}
+.inbox-btn.has .dot{display:block}
+
+/* ---------- 屏幕 ---------- */
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.active{display:flex}
+
+/* ---------- 指挥屏 ---------- */
+#screenNow{justify-content:center;text-align:center;padding-bottom:8px}
+.kicker{font-size:14px;color:var(--ink-3);letter-spacing:3px;margin:0 0 18px}
+.task-title{
+  font-size:clamp(27px,8.4vw,40px); line-height:1.3; font-weight:800;
+  letter-spacing:-.5px; margin:0 0 26px; word-break:break-word;
+}
+.dur-pick{display:flex;gap:8px;justify-content:center;margin-bottom:22px}
+.dur{
+  padding:9px 15px;border-radius:12px;font-size:14px;font-weight:600;
+  border:1px solid var(--line);background:var(--card);color:var(--ink-2);transition:.15s;
+}
+.dur.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.big{
+  width:100%;padding:22px;border-radius:var(--radius);font-size:21px;font-weight:800;
+  letter-spacing:2px;transition:transform .1s;
+}
+.big:active{transform:scale(.985)}
+.big.primary{background:var(--accent);color:#fff;box-shadow:0 10px 26px -12px var(--accent)}
+.big.ok{background:var(--ok);color:#fff;box-shadow:0 10px 26px -12px var(--ok)}
+.link{
+  margin-top:16px;font-size:15px;color:var(--ink-3);padding:10px;
+  text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line);
+}
+.link:active{color:var(--ink)}
+.footnote{margin-top:auto;font-size:13px;color:var(--ink-3);text-align:center;padding-bottom:6px;line-height:1.7}
+
+/* ---------- 小搭子 ----------
+   唯一规则：它永远不会因为她没做而难过。 */
+.pet-row{display:flex;align-items:center;gap:11px;justify-content:center;margin-bottom:16px;min-height:64px}
+.pet{width:64px;height:64px;flex:none}
+.pet.small{width:48px;height:48px}
+.pet svg{width:100%;height:100%;overflow:visible;display:block}
+.pet .body{fill:var(--pet-color,#f2a65a)}
+.pet .eye{transform-box:fill-box;transform-origin:center;animation:blink 5.4s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
+@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes hop{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-15px) rotate(-5deg)}65%{transform:translateY(0) rotate(2deg)}}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.pet.mood-idle svg{animation:breathe 3.6s ease-in-out infinite}
+.pet.mood-cheer svg{animation:sway 2.4s ease-in-out infinite}
+.pet.mood-happy svg{animation:hop .62s ease-out 3}
+.pet.mood-sleep svg{animation:breathe 5.6s ease-in-out infinite;opacity:.72}
+.bubble{
+  position:relative;max-width:216px;background:var(--card);border:1px solid var(--line);
+  border-radius:15px;padding:10px 13px;font-size:13.5px;line-height:1.6;color:var(--ink-2);
+  text-align:left;
+}
+.bubble::after{
+  content:"";position:absolute;left:-6px;top:50%;margin-top:-5px;width:10px;height:10px;
+  background:var(--card);border-left:1px solid var(--line);border-bottom:1px solid var(--line);
+  transform:rotate(45deg);
+}
+.bubble:empty{display:none}
+.pet-timer{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:18px}
+.pet-done{display:flex;justify-content:center;margin-bottom:16px}
+.pet-pick{display:flex;align-items:center;gap:7px;justify-content:center;flex-wrap:wrap}
+.pp-label{font-size:12.5px;color:var(--ink-3);margin-right:2px}
+.pp{
+  padding:7px 13px;border-radius:10px;font-size:13px;font-weight:600;
+  border:1px solid var(--line);background:var(--card);color:var(--ink-2);transition:.14s;
+}
+.pp.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* ---------- 计时屏 ---------- */
+#screenTimer{align-items:center;justify-content:center}
+.disc{
+  width:min(80vw,320px);aspect-ratio:1;border-radius:50%;
+  display:grid;place-items:center;transition:background .25s linear;flex:none;
+}
+.disc-inner{
+  width:79%;height:79%;border-radius:50%;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:14px;text-align:center;
+}
+.t-digits{font-size:clamp(38px,12vw,54px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1}
+.t-label{font-size:12px;color:var(--ink-3);letter-spacing:2px;margin-top:9px}
+.t-task{
+  font-size:13.5px;color:var(--ink-2);margin-top:12px;line-height:1.5;
+  max-height:3.6em;overflow:hidden;word-break:break-word;
+}
+#screenTimer .big{max-width:340px;margin-top:34px}
+.timer-links{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+
+/* ---------- 完成屏 ---------- */
+#screenDone{align-items:center;justify-content:center;text-align:center}
+.check{
+  width:104px;height:104px;border-radius:50%;background:var(--ok);
+  display:grid;place-items:center;margin-bottom:26px;
+  animation:pop .45s cubic-bezier(.2,1.5,.4,1);
+}
+.check svg{width:52px;height:52px}
+@keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+.done-title{font-size:30px;font-weight:800;margin:0 0 10px;letter-spacing:-.5px}
+.done-task{font-size:15px;color:var(--ink-2);margin:0 0 6px;line-height:1.6;word-break:break-word}
+.done-count{font-size:15px;color:var(--ink-3);margin:14px 0 34px}
+#screenDone .big{margin-bottom:12px}
+.ghost-big{
+  width:100%;padding:19px;border-radius:var(--radius);font-size:17px;font-weight:700;
+  border:1.5px solid var(--line);color:var(--ink-2);background:transparent;
+}
+.ghost-big:active{background:var(--card)}
+
+/* ---------- 收工屏 ---------- */
+#screenRest{align-items:center;justify-content:center;text-align:center;padding:0 6px}
+.rest-emoji{font-size:52px;margin-bottom:22px}
+.rest-title{font-size:26px;font-weight:800;line-height:1.45;margin:0 0 14px}
+.rest-sub{font-size:15.5px;color:var(--ink-2);line-height:1.85;margin:0 0 40px}
+.rest-sub b{color:var(--ink)}
+
+/* ---------- 箱子 ---------- */
+#screenInbox{overflow:hidden}
+.inbox-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex:none}
+.inbox-head h2{margin:0;font-size:20px;font-weight:800}
+.inbox-head .x{font-size:15px;color:var(--ink-3);padding:8px 4px}
+.inbox-hint{font-size:13px;color:var(--ink-3);line-height:1.7;margin:0 0 12px;flex:none}
+#dump{
+  width:100%;height:120px;resize:none;flex:none;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:13px 14px;font-size:15px;line-height:1.75;color:var(--ink);outline:none;
+}
+#dump:focus{border-color:var(--accent)}
+#dump::placeholder{color:var(--ink-3)}
+.add-btn{
+  width:100%;margin-top:10px;padding:15px;border-radius:14px;flex:none;
+  background:var(--accent);color:#fff;font-size:16px;font-weight:700;
+}
+.add-btn:active{opacity:.85}
+.list{list-style:none;margin:16px 0 0;padding:0;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.item{
+  display:flex;align-items:flex-start;gap:11px;padding:14px 2px;
+  border-bottom:1px solid var(--line);
+}
+.item .txt{flex:1;font-size:15px;line-height:1.6;word-break:break-word}
+.item.done .txt{color:var(--ink-3);text-decoration:line-through}
+.item .mini{
+  font-size:12.5px;padding:6px 9px;border-radius:9px;flex:none;
+  border:1px solid var(--line);color:var(--ink-3);background:var(--card);
+}
+.item .mini.on{color:var(--warn);border-color:var(--warn)}
+.empty{font-size:14px;color:var(--ink-3);text-align:center;padding:34px 0;line-height:2}
+.starters{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.starter{
+  text-align:left;padding:15px 16px;border-radius:14px;background:var(--card);
+  border:1px dashed var(--line);font-size:14.5px;color:var(--ink-2);
+}
+.starter:active{border-color:var(--accent);color:var(--ink)}
+.inbox-foot{display:flex;justify-content:center;gap:22px;padding-top:14px;flex:none}
+
+/* ---------- 卡住面板 ---------- */
+#sheet, #expSheet{
+  position:fixed;inset:0;z-index:20;display:none;
+  background:rgba(12,15,20,.45);backdrop-filter:blur(3px);
+  align-items:flex-end;justify-content:center;
+}
+#sheet.open, #expSheet.open{display:flex}
+#expText{
+  width:100%;height:236px;background:var(--bg);border:1px solid var(--line);border-radius:12px;
+  padding:12px 13px;font-size:12.5px;line-height:1.75;color:var(--ink-2);outline:none;resize:none;
+  font-family:"SF Mono",ui-monospace,Menlo,Consolas,"PingFang SC",monospace;white-space:pre;
+}
+.sheet-card{
+  width:100%;max-width:520px;background:var(--card);
+  border-radius:24px 24px 0 0;padding:24px 20px calc(var(--safe-b) + 24px);
+  animation:up .26s cubic-bezier(.2,.9,.3,1);
+}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-card h3{margin:0 0 6px;font-size:19px;font-weight:800}
+.sheet-card .lead{margin:0 0 18px;font-size:13.5px;color:var(--ink-3);line-height:1.7}
+.opt{
+  width:100%;text-align:left;padding:16px;border-radius:15px;margin-bottom:9px;
+  background:var(--bg);border:1px solid var(--line);transition:.14s;
+}
+.opt:active{border-color:var(--accent)}
+.opt b{display:block;font-size:15.5px;font-weight:700;margin-bottom:4px}
+.opt span{font-size:12.5px;color:var(--ink-3);line-height:1.6}
+.close-sheet{width:100%;padding:15px;margin-top:6px;font-size:15px;color:var(--ink-3)}
+
+/* 规则拆解器：离线、0 延迟 */
+.micro-list{display:flex;flex-direction:column;gap:9px}
+.micro{
+  width:100%;text-align:left;padding:17px 16px;border-radius:15px;
+  background:var(--bg);border:1px solid var(--line);
+  font-size:15.5px;font-weight:600;line-height:1.5;color:var(--ink);
+  display:flex;align-items:center;gap:12px;transition:.14s;
+}
+.micro:active{border-color:var(--accent);background:var(--card)}
+.micro .n{
+  flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);
+  color:#fff;font-size:12.5px;font-weight:800;display:grid;place-items:center;
+}
+#splitPanel{display:none}
+#splitPanel.open{display:block}
+#splitPrompt{
+  width:100%;height:74px;background:var(--bg);border:1px solid var(--line);border-radius:12px;
+  padding:11px 12px;font-size:12.5px;line-height:1.6;color:var(--ink-2);outline:none;resize:none;
+}
+#splitBack{
+  width:100%;height:80px;margin-top:10px;background:var(--bg);border:1px solid var(--line);
+  border-radius:12px;padding:11px 12px;font-size:14px;line-height:1.7;color:var(--ink);outline:none;resize:none;
+}
+.copy-mini{
+  margin-top:8px;padding:11px 16px;border-radius:11px;background:var(--ink);color:var(--bg);
+  font-size:13.5px;font-weight:700;
+}
+.tip{
+  position:fixed;left:50%;bottom:calc(var(--safe-b) + 26px);transform:translateX(-50%);
+  background:var(--ink);color:var(--bg);font-size:13.5px;padding:11px 18px;border-radius:999px;
+  opacity:0;pointer-events:none;transition:opacity .25s;z-index:40;white-space:nowrap;
+}
+.tip.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <div class="top">
+    <div class="clock" id="clock">--:--</div>
+    <button class="inbox-btn" id="inboxBtn" type="button">
+      <span>箱子</span><span class="dot"></span>
+    </button>
+  </div>
+
+  <!-- ========== 指挥屏 ========== -->
+  <section class="screen active" id="screenNow">
+    <div class="pet-row">
+      <div class="pet mood-idle" id="petNow"></div>
+      <div class="bubble" id="bubbleNow"></div>
+    </div>
+    <p class="kicker" id="nowKicker">现在只做这一件</p>
+    <h1 class="task-title" id="nowTask">把桌上的三个杯子拿到厨房</h1>
+    <div class="dur-pick" id="durPick">
+      <button class="dur" data-min="5" type="button">5 分</button>
+      <button class="dur on" data-min="15" type="button">15 分</button>
+      <button class="dur" data-min="25" type="button">25 分</button>
+      <button class="dur" data-min="45" type="button">45 分</button>
+    </div>
+    <button class="big primary" id="startBtn" type="button">开始</button>
+    <button class="link" id="stuckBtn" type="button">我卡住了</button>
+    <p class="footnote" id="footNote"></p>
+  </section>
+
+  <!-- ========== 计时屏 ========== -->
+  <section class="screen" id="screenTimer">
+    <div class="disc" id="disc">
+      <div class="disc-inner">
+        <div class="t-digits" id="tDigits">15:00</div>
+        <div class="t-label">还剩</div>
+        <div class="t-task" id="tTask"></div>
+      </div>
+    </div>
+    <div class="pet-timer">
+      <div class="pet small mood-cheer" id="petTimer"></div>
+      <div class="bubble" id="bubbleTimer">我坐这儿陪你。</div>
+    </div>
+    <button class="big ok" id="doneBtn" type="button">做完了</button>
+    <div class="timer-links">
+      <button class="link" id="stuckBtn2" type="button">我卡住了</button>
+      <button class="link" id="stopBtn" type="button">停一下</button>
+    </div>
+  </section>
+
+  <!-- ========== 完成屏 ========== -->
+  <section class="screen" id="screenDone">
+    <div class="pet-done"><div class="pet small mood-happy" id="petDone"></div></div>
+    <div class="check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.2 5.2L20 6.8"/></svg>
+    </div>
+    <h2 class="done-title" id="doneTitle">完成了</h2>
+    <p class="done-task" id="doneTask"></p>
+    <p class="done-count" id="doneCount">今天已完成 1 件</p>
+    <button class="big primary" id="againBtn" type="button">再做一件</button>
+    <button class="ghost-big" id="restBtn" type="button">今天就到这</button>
+  </section>
+
+  <!-- ========== 收工屏 ========== -->
+  <section class="screen" id="screenRest">
+    <div class="pet-done"><div class="pet mood-sleep" id="petRest"></div></div>
+    <h2 class="rest-title">好，今天就到这。</h2>
+    <p class="rest-sub" id="restSub">
+      这不叫放弃，这叫收工。<br>
+      今天你完成了 <b>1</b> 件。
+    </p>
+    <button class="big primary" id="backBtn" type="button">回到这一件</button>
+  </section>
+
+  <!-- ========== 箱子 ========== -->
+  <section class="screen" id="screenInbox">
+    <div class="inbox-head">
+      <h2>倒进来</h2>
+      <button class="x" id="closeInbox" type="button">返回</button>
+    </div>
+    <p class="inbox-hint">
+      想到什么写什么，一件事一行。<br>
+      不用排序，不用判断能不能做完，不用写清楚——先倒出来就行。
+    </p>
+    <textarea id="dump" spellcheck="false"
+      placeholder="交季度小结&#10;给妈打电话&#10;把桌上的东西归位"></textarea>
+    <button class="add-btn" id="addBtn" type="button">放进箱子</button>
+    <ul class="list" id="list"></ul>
+    <div class="inbox-foot">
+      <div class="pet-pick" id="petPick">
+        <span class="pp-label">小搭子</span>
+        <button class="pp" id="pet-cat" data-pet="cat" type="button">猫</button>
+        <button class="pp" id="pet-penguin" data-pet="penguin" type="button">企鹅</button>
+        <button class="pp" id="pet-hedgehog" data-pet="hedgehog" type="button">刺猬</button>
+      </div>
+    </div>
+    <div class="inbox-foot">
+      <button class="link" id="exportBtn" type="button" style="margin:0">使用摘要</button>
+      <button class="link" id="resetDay" type="button" style="margin:0">重置今日计数</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- ========== 卡住面板 ========== -->
+<div id="sheet">
+  <div class="sheet-card">
+    <div id="sheetMain">
+      <h3>卡住了，很正常。</h3>
+      <p class="lead">选一个，不用想哪个才对。</p>
+
+      <button class="opt" data-act="two" type="button">
+        <b>只做 2 分钟</b>
+        <span>2 分钟到了就可以停。停下来也算完成。</span>
+      </button>
+      <button class="opt" data-act="lower" type="button">
+        <b>把标准降到最低</b>
+        <span>做到 60% 就算完成，做得烂也算完成。</span>
+      </button>
+      <button class="opt" data-act="swap" type="button">
+        <b>换一件</b>
+        <span>这件放回队尾，不算失败，不记账。</span>
+      </button>
+      <button class="opt" data-act="split" type="button">
+        <b>它其实不止一件事</b>
+        <span>拆成几个能立刻开始的小动作。</span>
+      </button>
+
+      <button class="close-sheet" data-act="close" type="button">先关掉</button>
+    </div>
+
+    <div id="splitPanel">
+      <h3>拆小它</h3>
+      <p class="lead" style="margin-bottom:14px">
+        看起来这是「<b id="catName">通用</b>」类的事。挑一个，立刻开始。<br>
+        原来那件会留在箱子里，不会丢。
+      </p>
+      <div class="micro-list" id="microList"></div>
+
+      <p class="lead" style="margin:22px 0 8px">
+        都不合适？复制这段给任意 AI，再把结果粘回来：
+      </p>
+      <textarea id="splitPrompt" readonly></textarea>
+      <button class="copy-mini" id="copySplit" type="button">复制这段</button>
+      <textarea id="splitBack" placeholder="AI 给的小动作，一行一条粘回来"></textarea>
+      <button class="copy-mini" id="splitAdd" type="button" style="background:var(--accent);color:#fff">加进箱子最前面</button>
+      <button class="close-sheet" data-act="close" type="button">返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 使用摘要 ========== -->
+<div id="expSheet">
+  <div class="sheet-card">
+    <h3>使用摘要</h3>
+    <p class="lead">
+      这是这台手机上攒下来的统计。<b>里面没有她写的任何任务</b>——只有次数和类别。<br>
+      要不要发出去，她说了算。
+    </p>
+    <textarea id="expText" readonly></textarea>
+    <button class="copy-mini" id="copyExp" type="button">复制摘要</button>
+    <button class="close-sheet" id="closeExp" type="button">关闭</button>
+  </div>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var LS = "jiuyijian.v1";
+
+  /* ---------------- 状态 ---------------- */
+  var state = {
+    tasks: [],          // { id, text, done }
+    doneToday: 0,
+    day: todayStr(),
+    currentId: null,    // 当前轮到的任务
+    minutes: 15,        // 选中的时长
+    timer: null,        // { taskId, endAt, totalMin }
+    pet: { species: "cat" },
+    stats: blankStats(), // 只存次数和类别，绝不存任务内容
+    onboarded: false
+  };
+
+  function blankStats() {
+    return {
+      opens: 0,                                   // 打开 App 次数
+      done: 0,                                    // 累计完成件数
+      days: {},                                   // "2026-06-01": 当天完成数
+      stuck: 0,                                   // 点「我卡住了」次数
+      acts: { two: 0, lower: 0, swap: 0, split: 0 },
+      microShown: 0,                              // 看到拆解建议次数
+      microUsed: 0,                               // 采纳拆解建议次数
+      aiFallback: 0,                              // 走 AI 兜底次数
+      cats: {}                                    // 卡住时命中的类别
+    };
+  }
+
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" +
+           String(d.getMonth() + 1).padStart(2, "0") + "-" +
+           String(d.getDate()).padStart(2, "0");
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(LS);
+      if (raw) {
+        var s = JSON.parse(raw);
+        state.tasks     = s.tasks || [];
+        state.doneToday = s.doneToday || 0;
+        state.day       = s.day || todayStr();
+        state.currentId = s.currentId || null;
+        state.minutes   = s.minutes || 15;
+        state.timer     = s.timer || null;
+        state.pet       = (s.pet && s.pet.species) ? s.pet : { species: "cat" };
+        state.onboarded = !!s.onboarded;
+
+        var st = s.stats || {};
+        var fresh = blankStats();
+        ["opens", "done", "stuck", "microShown", "microUsed", "aiFallback"].forEach(function (k) {
+          if (typeof st[k] === "number") fresh[k] = st[k];
+        });
+        fresh.days = st.days || {};
+        fresh.cats = st.cats || {};
+        fresh.acts = Object.assign({ two: 0, lower: 0, swap: 0, split: 0 }, st.acts || {});
+        state.stats = fresh;
+      }
+    } catch (e) {}
+    /* 跨天：只重置计数，绝不惩罚、绝不留记录 */
+    if (state.day !== todayStr()) {
+      state.day = todayStr();
+      state.doneToday = 0;
+    }
+  }
+
+  function save() {
+    try { localStorage.setItem(LS, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* ---------------- 队列 ---------------- */
+  function pending() { return state.tasks.filter(function (t) { return !t.done; }); }
+
+  function currentTask() {
+    var p = pending();
+    if (!p.length) return null;
+    var t = p.filter(function (x) { return x.id === state.currentId; })[0];
+    if (t) return t;
+    state.currentId = p[0].id;
+    return p[0];
+  }
+
+  function rotateCurrent() {
+    var t = currentTask();
+    if (!t) return;
+    var i = state.tasks.indexOf(t);
+    state.tasks.splice(i, 1);
+    state.tasks.push(t);
+    var next = pending().filter(function (x) { return x.id !== t.id; })[0];
+    state.currentId = next ? next.id : t.id;
+  }
+
+  function addTasks(lines, toFront) {
+    var added = 0;
+    lines.forEach(function (line) {
+      var s = line.trim();
+      if (!s) return;
+      var task = { id: "t" + Date.now() + Math.random().toString(36).slice(2, 6), text: s, done: false };
+      if (toFront) state.tasks.unshift(task); else state.tasks.push(task);
+      added++;
+    });
+    if (added && !state.currentId) state.currentId = pending()[0] ? pending()[0].id : null;
+    return added;
+  }
+
+  /* ---------------- 提示条 ---------------- */
+  var tipTimer = null;
+  function tip(msg) {
+    var el = $("tip");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(function () { el.classList.remove("show"); }, 1900);
+  }
+
+  /* ---------------- 声音与震动 ---------------- */
+  function beep() {
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      var ctx = new Ctx();
+      [0, 0.2].forEach(function (t, i) {
+        var o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "sine";
+        o.frequency.value = i ? 880 : 660;
+        g.gain.setValueAtTime(0.0001, ctx.currentTime + t);
+        g.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + 0.18);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.22);
+      });
+      setTimeout(function () { try { ctx.close(); } catch (e) {} }, 900);
+    } catch (e) {}
+  }
+  function buzz(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+  }
+
+  /* ---------------- 屏幕常亮（https 下有效） ---------------- */
+  var wakeLock = null;
+  function keepAwake() {
+    try {
+      if (navigator.wakeLock && navigator.wakeLock.request) {
+        navigator.wakeLock.request("screen").then(function (l) { wakeLock = l; })["catch"](function () {});
+      }
+    } catch (e) {}
+  }
+  function letSleep() {
+    try { if (wakeLock) wakeLock.release(); } catch (e) {}
+    wakeLock = null;
+  }
+
+  /* ---------------- 小搭子 ----------------
+     唯一规则：它永远不会因为她没做而难过。
+     它只因她的任何动作而变好——包括只是打开这个 App。
+     这里没有死亡、没有生病、没有"你已经 N 天没来"。 */
+  var PETS = {
+    cat:      { name: "小猫", color: "#f2a65a" },
+    penguin:  { name: "企鹅", color: "#93aecf" },
+    hedgehog: { name: "刺猬", color: "#c9925f" }
+  };
+
+  var PET_SVG = {
+    cat:
+      '<svg viewBox="0 0 100 100">' +
+        '<path class="body" d="M27 47 L21 16 L47 33 Z"/>' +
+        '<path class="body" d="M73 47 L79 16 L53 33 Z"/>' +
+        '<circle class="body" cx="50" cy="61" r="30"/>' +
+        '<circle class="eye" cx="39" cy="57" r="4.2" fill="#20242c"/>' +
+        '<circle class="eye" cx="61" cy="57" r="4.2" fill="#20242c"/>' +
+        '<path d="M44 71 q6 5 12 0" stroke="#20242c" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+        '<ellipse cx="29" cy="67" rx="5" ry="3.4" fill="#ffffff" opacity=".3"/>' +
+        '<ellipse cx="71" cy="67" rx="5" ry="3.4" fill="#ffffff" opacity=".3"/>' +
+      '</svg>',
+    penguin:
+      '<svg viewBox="0 0 100 100">' +
+        '<ellipse class="body" cx="22" cy="60" rx="8" ry="16"/>' +
+        '<ellipse class="body" cx="78" cy="60" rx="8" ry="16"/>' +
+        '<ellipse class="body" cx="50" cy="57" rx="29" ry="33"/>' +
+        '<ellipse cx="50" cy="63" rx="19" ry="25" fill="#ffffff" opacity=".92"/>' +
+        '<circle class="eye" cx="40" cy="46" r="4" fill="#20242c"/>' +
+        '<circle class="eye" cx="60" cy="46" r="4" fill="#20242c"/>' +
+        '<path d="M50 54 l-7 7 h14 z" fill="#f2a65a"/>' +
+      '</svg>',
+    hedgehog:
+      '<svg viewBox="0 0 100 100">' +
+        '<g class="body">' +
+          '<path d="M24 60 L30 37 L40 56 Z"/>' +
+          '<path d="M38 54 L46 29 L56 52 Z"/>' +
+          '<path d="M54 52 L64 29 L72 54 Z"/>' +
+          '<path d="M68 56 L78 39 L84 60 Z"/>' +
+          '<path d="M20 66 a34 26 0 0 1 64 0 z"/>' +
+        '</g>' +
+        '<ellipse cx="50" cy="70" rx="32" ry="13" fill="#f7e0c4"/>' +
+        '<circle class="eye" cx="41" cy="68" r="3.6" fill="#20242c"/>' +
+        '<circle class="eye" cx="59" cy="68" r="3.6" fill="#20242c"/>' +
+        '<circle cx="73" cy="72" r="4.2" fill="#20242c"/>' +
+      '</svg>'
+  };
+
+  /* 所有台词都是"陪伴"，没有一句是"要求"或"失望"。 */
+  var PET_LINES = {
+    open:  ["你来了。就做这一件吧。", "我又在了。慢慢来。", "来了就好，先看一眼。"],
+    start: ["我坐这儿陪你。", "我不看你做得好不好。", "开始就行，做多少算多少。"],
+    stuck: ["卡住很正常。挑个最小的。", "不用想通，先动一小下。"],
+    done:  ["做完了。这一件算数。", "记下了。真的算数。", "又一件。我在。"],
+    rest:  ["收工了。明天我还在。", "歇着吧，我不走。"],
+    idle:  ["不着急，我在这儿。", "慢慢来，我不催你。", "我等你。"]
+  };
+
+  function pickOne(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function petSpecies() {
+    return PETS[state.pet && state.pet.species] ? state.pet.species : "cat";
+  }
+
+  function paintPets() {
+    var sp = petSpecies();
+    ["petNow", "petTimer", "petDone", "petRest"].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      el.innerHTML = PET_SVG[sp];
+      el.style.setProperty("--pet-color", PETS[sp].color);
+    });
+  }
+
+  function petMood(id, base, mood) {
+    var el = $(id);
+    if (el) el.className = "pet" + (base ? " " + base : "") + " mood-" + mood;
+  }
+
+  function say(which, text) {
+    var el = $(which === "timer" ? "bubbleTimer" : "bubbleNow");
+    if (el) el.textContent = text || "";
+  }
+
+  function petSpeak(which, key) {
+    say(which, pickOne(PET_LINES[key] || PET_LINES.idle));
+  }
+
+  function renderPetPick() {
+    var sp = petSpecies();
+    var keys = Object.keys(PETS);
+    for (var i = 0; i < keys.length; i++) {
+      var el = $("pet-" + keys[i]);
+      if (el) el.classList.toggle("on", keys[i] === sp);
+    }
+  }
+
+  function choosePet(key) {
+    if (!PETS[key]) return;
+    state.pet = { species: key };
+    save();
+    paintPets();
+    renderPetPick();
+    petSpeak("now", "open");
+    tip("换了只" + PETS[key].name + "，它归你了");
+  }
+
+  /* 久坐不动时，它轻轻说一句。不催促、不计数、不记录。 */
+  var idleTimer = null;
+  function armIdleNudge() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () {
+      var now = $("screenNow");
+      if (now && now.classList.contains("active")) petSpeak("now", "idle");
+    }, 45000);
+  }
+
+  /* ---------------- 屏幕切换 ---------------- */
+  var SCREENS = ["screenNow", "screenTimer", "screenDone", "screenRest", "screenInbox"];
+  function show(id) {
+    SCREENS.forEach(function (s) { $(s).classList.toggle("active", s === id); });
+    if (id === "screenNow") {
+      petMood("petNow", "", "idle");
+      armIdleNudge();
+    }
+  }
+
+  /* ---------------- 渲染：指挥屏 ---------------- */
+  function renderNow() {
+    var boxHas = pending().length > 0;
+    $("inboxBtn").classList.toggle("has", boxHas);
+
+    var t = currentTask();
+    if (t) {
+      $("nowKicker").textContent = "现在只做这一件";
+      $("nowTask").textContent = t.text;
+      $("startBtn").disabled = false;
+      $("startBtn").style.opacity = "1";
+      $("footNote").textContent = "";
+    } else {
+      $("nowKicker").textContent = "箱子空了";
+      $("nowTask").textContent = "先倒点事情进来";
+      $("footNote").innerHTML = "点右上角「箱子」，把脑子里的事都倒进去。<br>现在没想法的话，也可以随便做一件小事。";
+    }
+
+    var chips = $("durPick").children;
+    for (var i = 0; i < chips.length; i++) {
+      chips[i].classList.toggle("on", parseInt(chips[i].getAttribute("data-min"), 10) === state.minutes);
+    }
+  }
+
+  /* ---------------- 计时 ---------------- */
+  var tick = null;
+
+  function startTimer(minutes) {
+    var t = currentTask();
+    if (!t) { tip("箱子是空的，先倒一件事进来"); return; }
+    state.timer = { taskId: t.id, endAt: Date.now() + minutes * 60000, totalMin: minutes };
+    state.currentId = t.id;
+    save();
+    show("screenTimer");
+    $("tTask").textContent = t.text;
+    $("doneBtn").textContent = "做完了";
+    petMood("petTimer", "small", "cheer");
+    petSpeak("timer", "start");
+    keepAwake();
+    runTick();
+    if (!tick) tick = setInterval(runTick, 250);
+  }
+
+  function runTick() {
+    if (!state.timer) return;
+    var left = state.timer.endAt - Date.now();
+    var total = state.timer.totalMin * 60000;
+    if (left < 0) left = 0;
+
+    var m = Math.floor(left / 60000);
+    var s = Math.floor((left % 60000) / 1000);
+    $("tDigits").textContent = m + ":" + String(s).padStart(2, "0");
+
+    var ratio = total > 0 ? left / total : 0;
+    var color = ratio > 0.5 ? "var(--ok)" : (ratio > 0.2 ? "var(--warn)" : "var(--danger)");
+    var deg = Math.round(ratio * 360);
+    $("disc").style.background =
+      "conic-gradient(" + color + " " + deg + "deg, var(--line) " + deg + "deg)";
+
+    if (left <= 0) {
+      clearInterval(tick); tick = null;
+      letSleep();
+      beep(); buzz([180, 90, 180]);
+      $("tDigits").textContent = "0:00";
+      $("doneBtn").textContent = "时间到了 · 做完了";
+      tip("时间到了。做完了就点它，没做完也可以点。");
+    }
+  }
+
+  function stopTimer() {
+    if (tick) { clearInterval(tick); tick = null; }
+    letSleep();
+  }
+
+  function finishCurrent() {
+    var t = currentTask();
+    stopTimer();
+    state.timer = null;
+
+    if (t) {
+      t.done = true;
+      state.doneToday += 1;
+      state.currentId = null;
+      state.stats.done += 1;
+      var dk = todayStr();
+      state.stats.days[dk] = (state.stats.days[dk] || 0) + 1;
+    }
+    save();
+
+    $("doneTask").textContent = t ? t.text : "";
+    $("doneCount").textContent = "今天已完成 " + state.doneToday + " 件";
+    $("doneTitle").textContent = state.doneToday >= 5 ? "又一件。你今天很稳。" : "完成了";
+    beep(); buzz(90);
+    petMood("petDone", "small", "happy");
+    petSpeak("now", "done");
+    show("screenDone");
+  }
+
+  /* ---------------- 箱子渲染 ---------------- */
+  function renderList() {
+    var ul = $("list");
+    ul.innerHTML = "";
+
+    if (!state.tasks.length) {
+      var li = document.createElement("li");
+      li.className = "empty";
+      li.innerHTML = "箱子是空的。<br>没想法的话，从这三件里随便挑一件：";
+      ul.appendChild(li);
+
+      var wrap = document.createElement("div");
+      wrap.className = "starters";
+      ["喝一杯水", "把桌上三样东西归位", "打开要做的那份文件，只看一眼"].forEach(function (s) {
+        var b = document.createElement("button");
+        b.className = "starter";
+        b.type = "button";
+        b.textContent = s;
+        b.addEventListener("click", function () {
+          addTasks([s], true);
+          save(); renderAll();
+          tip("已经放进箱子");
+        });
+        wrap.appendChild(b);
+      });
+      var li2 = document.createElement("li");
+      li2.appendChild(wrap);
+      ul.appendChild(li2);
+      return;
+    }
+
+    state.tasks.forEach(function (t) {
+      var li = document.createElement("li");
+      li.className = "item" + (t.done ? " done" : "");
+
+      var span = document.createElement("span");
+      span.className = "txt";
+      span.textContent = t.text;
+
+      var front = document.createElement("button");
+      front.className = "mini";
+      front.type = "button";
+      front.textContent = "顶到最前";
+      front.addEventListener("click", function () {
+        state.tasks.splice(state.tasks.indexOf(t), 1);
+        state.tasks.unshift(t);
+        save(); renderAll();
+        tip("已顶到最前");
+      });
+
+      var del = document.createElement("button");
+      del.className = "mini";
+      del.type = "button";
+      del.textContent = t.done ? "移除" : "删掉";
+      del.addEventListener("click", function () {
+        state.tasks.splice(state.tasks.indexOf(t), 1);
+        if (state.currentId === t.id) state.currentId = null;
+        save(); renderAll();
+      });
+
+      li.appendChild(span);
+      li.appendChild(front);
+      li.appendChild(del);
+      ul.appendChild(li);
+    });
+  }
+
+  function renderAll() {
+    renderNow();
+    renderList();
+  }
+
+  /* ---------------- 卡住面板 ---------------- */
+  function openSheet() {
+    $("sheetMain").style.display = "block";
+    $("splitPanel").classList.remove("open");
+    $("sheet").classList.add("open");
+    petSpeak("now", "stuck");
+    state.stats.stuck += 1;
+    var t = currentTask();
+    if (t) {
+      var cat = classify(t.text).name;
+      state.stats.cats[cat] = (state.stats.cats[cat] || 0) + 1;
+    }
+    save();
+  }
+  function closeSheet() { $("sheet").classList.remove("open"); }
+
+  /* ---------------- 规则拆解器（离线，不联网） ----------------
+     只用关键词判断大类，给出三个固定的小动作。
+     它不需要完美——不合适就点「返回」走 AI 那条路。       */
+  var SPLIT_RULES = [
+    { name: "沟通", keys: ["电话","打给","微信","回复","回个","联系","问一下","约","沟通","找","说一声","消息","短信","邮件","通知"],
+      steps: ["拿起手机，找到这个人", "只打第一句话，不用想好怎么说", "发出去：我想到这件事了，晚点跟你说"] },
+    { name: "文书", keys: ["写","总结","小结","材料","论文","ppt","汇报","填","表格","申请","方案","计划书","记录","复盘","稿"],
+      steps: ["打开文档，只写一个标题", "只写三句要点，不用管顺序", "先写着，错字和逻辑等会再改"] },
+    { name: "外出", keys: ["去","办","取","送","交","寄","买","医院","医生","挂号","银行","快递","缴费","跑一趟","窗口","驾照","证","牙"],
+      steps: ["只确认两件事：去哪、带什么", "只穿鞋、拿钥匙", "只走到门口"] },
+    { name: "整理", keys: ["整理","收拾","打扫","清理","清一下","归位","洗","擦","扔","收纳","桌面","房间","衣柜","冰箱","厨房"],
+      steps: ["只清一小块：一只手能盖住的范围", "只把三样东西放回原位", "拿个箱子，只装，不分类"] },
+    { name: "学习", keys: ["看","读","学","复习","背","听","课","视频","书","教程","单词","题","文档"],
+      steps: ["只打开，看第一页", "只看标题和小标题", "只记下一个点就停"] },
+    { name: "身体", keys: ["吃","喝","睡","洗澡","运动","跑步","药","水","休息","散步","体检"],
+      steps: ["先喝一杯水", "站起来，伸个懒腰", "只做 2 分钟，到了可以停"] }
+  ];
+  var DEFAULT_STEPS = ["只做 2 分钟，到了可以停", "只把要用到的东西先拿出来", "只写下这件事的下一步是什么"];
+
+  function classify(text) {
+    var s = String(text || "").toLowerCase();
+    for (var i = 0; i < SPLIT_RULES.length; i++) {
+      var keys = SPLIT_RULES[i].keys;
+      for (var j = 0; j < keys.length; j++) {
+        if (s.indexOf(keys[j].toLowerCase()) !== -1) return SPLIT_RULES[i];
+      }
+    }
+    return { name: "通用", steps: DEFAULT_STEPS };
+  }
+
+  function renderMicroSteps(taskText) {
+    var rule = classify(taskText);
+    $("catName").textContent = rule.name;
+    state.stats.microShown += 1;
+    save();
+    var box = $("microList");
+    box.innerHTML = "";
+    rule.steps.forEach(function (step, i) {
+      var b = document.createElement("button");
+      b.className = "micro";
+      b.type = "button";
+      var n = document.createElement("span");
+      n.className = "n";
+      n.textContent = String(i + 1);
+      var t = document.createElement("span");
+      t.textContent = step;
+      b.appendChild(n);
+      b.appendChild(t);
+      b.addEventListener("click", function () { useMicroStep(step); });
+      box.appendChild(b);
+    });
+  }
+
+  function useMicroStep(step) {
+    addTasks([step], true);
+    state.currentId = state.tasks[0].id;
+    state.stats.microUsed += 1;
+    save();
+    renderAll();
+    closeSheet();
+    show("screenNow");
+    tip("换成这一小步了，原来那件还在箱子里");
+  }
+
+  function openSplit() {
+    var t = currentTask();
+    var name = t ? t.text : "这件事";
+    renderMicroSteps(name);
+    $("splitPrompt").value =
+      "帮我把这件事拆成 3 个「2 分钟内就能开始」的小动作。\n" +
+      "每行一个，只写动作，不要写计划、不要写建议。\n\n" +
+      "事情：" + name;
+    $("sheetMain").style.display = "none";
+    $("splitPanel").classList.add("open");
+  }
+
+  /* ---------------- 事件 ---------------- */
+  $("inboxBtn").addEventListener("click", function () { renderList(); show("screenInbox"); });
+  $("closeInbox").addEventListener("click", function () { renderAll(); show("screenNow"); });
+
+  $("addBtn").addEventListener("click", function () {
+    var n = addTasks($("dump").value.split("\n"), false);
+    $("dump").value = "";
+    save(); renderAll();
+    tip(n ? "放进箱子 " + n + " 件" : "写点什么再放进来");
+  });
+
+  $("durPick").addEventListener("click", function (e) {
+    var b = e.target.closest(".dur");
+    if (!b) return;
+    state.minutes = parseInt(b.getAttribute("data-min"), 10);
+    save(); renderNow();
+  });
+
+  $("startBtn").addEventListener("click", function () { startTimer(state.minutes); });
+  $("doneBtn").addEventListener("click", finishCurrent);
+  $("stuckBtn").addEventListener("click", openSheet);
+  $("stuckBtn2").addEventListener("click", openSheet);
+
+  $("stopBtn").addEventListener("click", function () {
+    stopTimer();
+    save();
+    renderAll();
+    show("screenNow");
+    tip("停一下没关系，回来接着做");
+  });
+
+  $("againBtn").addEventListener("click", function () {
+    state.currentId = null;
+    save(); renderAll();
+    show("screenNow");
+  });
+
+  $("restBtn").addEventListener("click", function () {
+    $("restSub").innerHTML = "这不叫放弃，这叫收工。<br>今天你完成了 <b>" +
+      state.doneToday + "</b> 件。";
+    petSpeak("now", "rest");
+    show("screenRest");
+  });
+
+  /* 换小搭子 */
+  ["cat", "penguin", "hedgehog"].forEach(function (k) {
+    var b = $("pet-" + k);
+    if (b) b.addEventListener("click", function () { choosePet(k); });
+  });
+
+  $("backBtn").addEventListener("click", function () {
+    state.currentId = null;
+    save(); renderAll();
+    show("screenNow");
+  });
+
+  $("resetDay").addEventListener("click", function () {
+    state.doneToday = 0;
+    save();
+    $("doneCount").textContent = "今天已完成 0 件";
+    tip("今日计数已归零");
+  });
+
+  /* ---------------- 使用摘要 ----------------
+     只导出次数和类别。任务文字一个字都不带。
+     她按了才生成，发不发也由她决定。 */
+  function exportSummary() {
+    var st = state.stats;
+    var days = Object.keys(st.days).sort();
+    var span = days.length ? (days[0] + " ~ " + days[days.length - 1]) : "（还没有记录）";
+    var perDay = days.map(function (d) { return st.days[d]; }).join(", ") || "0";
+    var catList = Object.keys(st.cats)
+      .sort(function (a, b) { return st.cats[b] - st.cats[a]; })
+      .map(function (k) { return k + " " + st.cats[k]; })
+      .join(" ｜ ") || "（无）";
+
+    return [
+      "「就一件」使用摘要",
+      "统计区间：" + span,
+      "",
+      "打开 App            " + st.opens + " 次",
+      "完成                " + st.done + " 件",
+      "有记录的日子         " + days.length + " 天",
+      "每天完成             " + perDay,
+      "",
+      "点「我卡住了」       " + st.stuck + " 次",
+      "  ├ 只做 2 分钟      " + st.acts.two,
+      "  ├ 降低标准         " + st.acts.lower,
+      "  ├ 换一件           " + st.acts.swap,
+      "  └ 拆成小动作       " + st.acts.split,
+      "",
+      "看到拆解建议         " + st.microShown + " 次，采纳 " + st.microUsed + " 次",
+      "走 AI 兜底           " + st.aiFallback + " 次",
+      "最常卡住的类别       " + catList,
+      "",
+      "—— 本摘要不含任何任务内容。"
+    ].join("\n");
+  }
+
+  $("exportBtn").addEventListener("click", function () {
+    $("expText").value = exportSummary();
+    $("expSheet").classList.add("open");
+  });
+
+  $("closeExp").addEventListener("click", function () {
+    $("expSheet").classList.remove("open");
+  });
+
+  $("copyExp").addEventListener("click", function () {
+    var txt = $("expText").value;
+    function fb() {
+      var ta = document.createElement("textarea");
+      ta.value = txt; ta.style.position = "fixed"; ta.style.top = "-1000px";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { tip("已复制，发不发你决定"); })
+        ["catch"](function () { fb(); tip("已复制"); });
+    } else { fb(); tip("已复制"); }
+  });
+
+  /* 卡住面板的动作 */
+  $("sheet").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    if (!b) return;
+    var act = b.getAttribute("data-act");
+
+    if (act === "close") { closeSheet(); return; }
+
+    if (state.stats.acts[act] !== undefined) {
+      state.stats.acts[act] += 1;
+      save();
+    }
+
+    if (act === "two") {
+      closeSheet();
+      startTimer(2);
+      tip("就 2 分钟，到了可以停");
+      return;
+    }
+    if (act === "lower") {
+      closeSheet();
+      $("nowTask").textContent = "做出 60% 就算完成";
+      $("nowKicker").textContent = "标准已降到最低";
+      $("footNote").textContent = "做得烂也算完成。先让它存在。";
+      show("screenNow");
+      return;
+    }
+    if (act === "swap") {
+      closeSheet();
+      rotateCurrent();
+      save(); renderAll();
+      show("screenNow");
+      tip("换了一件，这件不算失败");
+      return;
+    }
+    if (act === "split") { openSplit(); return; }
+  });
+
+  $("copySplit").addEventListener("click", function () {
+    var txt = $("splitPrompt").value;
+    state.stats.aiFallback += 1;
+    save();
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = txt; ta.style.position = "fixed"; ta.style.top = "-1000px";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { tip("已复制，去粘给 AI"); })["catch"](function () {
+        fallback(); tip("已复制");
+      });
+    } else { fallback(); tip("已复制"); }
+  });
+
+  $("splitAdd").addEventListener("click", function () {
+    var n = addTasks($("splitBack").value.split("\n"), true);
+    $("splitBack").value = "";
+    state.currentId = null;
+    save(); renderAll(); closeSheet(); show("screenNow");
+    tip(n ? "拆成 " + n + " 小步，放在最前面" : "还没粘东西进来");
+  });
+
+  /* 时钟 */
+  function clockTick() {
+    var d = new Date();
+    $("clock").textContent = String(d.getHours()).padStart(2, "0") + ":" +
+                             String(d.getMinutes()).padStart(2, "0");
+  }
+  clockTick();
+  setInterval(clockTick, 15000);
+
+  /* 回到前台时恢复计时（她一定会切走） */
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) { clockTick(); if (state.timer) runTick(); }
+  });
+
+  /* ---------------- 启动 ---------------- */
+  load();
+  state.stats.opens += 1;
+  save();
+  paintPets();
+  renderPetPick();
+
+  if (state.timer && state.timer.endAt > Date.now()) {
+    show("screenTimer");
+    var ct = state.tasks.filter(function (x) { return x.id === state.timer.taskId; })[0];
+    $("tTask").textContent = ct ? ct.text : "";
+    state.currentId = state.timer.taskId;
+    petMood("petTimer", "small", "cheer");
+    petSpeak("timer", "start");
+    keepAwake();
+    runTick();
+    tick = setInterval(runTick, 250);
+  } else if (state.timer) {
+    state.timer = null;
+    save();
+    renderAll();
+    show("screenNow");
+    petSpeak("now", "open");
+    tip("刚才的计时已经结束了");
+  } else {
+    petSpeak("now", "open");
+    renderAll();
+    show("screenNow");
+    if (!state.onboarded) {
+      state.onboarded = true;
+      save();
+      setTimeout(function () { tip("这里一次只显示一件事"); }, 700);
+    }
+  }
+
+  /* ---------------- Service Worker ----------------
+     只在 http/https 下注册。直接双击打开本地文件（file://）时会自动跳过，
+     应用照常可用，只是没有离线缓存和"添加到主屏"的完整形态。 */
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("./sw.js")["catch"](function () {});
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
