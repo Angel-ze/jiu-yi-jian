@@ -130,7 +130,59 @@ node tools/make-icons.js
 
 ---
 
-## 八、设计红线（改代码时请守住）
+## 八、Android APK 与版本号规则
+
+### 版本号怎么定
+
+```
+versionCode = 主×10000 + 次×100 + 修订      ← 永远单调递增，Android 靠它判断能否升级
+```
+
+`versionName` 按「**她能不能感觉到**」来定，而不是按改了多少行代码：
+
+| 档位 | 什么情况 | 例子 | 变化 |
+|---|---|---|---|
+| **修订** | 她感觉不到，或只影响个别情况 | 改错别字、调间距、换一句台词、修一个不触发的小 bug | `2.0.0 → 2.0.1` |
+| **次版本** | 她能用到新东西 | 新加小动物、新一类拆解、新按钮、主屏交互改了 | `2.0.1 → 2.1.0` |
+| **主版本** | 机制变了 / 数据会丢 / 要重装 | 换加载方式、换包名、换存储方案 | `2.1.0 → 3.0.0` |
+
+主版本号同时表示**架构代次**：
+
+| 系列 | 方案 | 状态 |
+|---|---|---|
+| `1.x` | TWA —— 内容从网页加载，依赖 Chrome + 域名验证 | ❌ 作废 |
+| `2.x` | WebView —— 内容内嵌在 APK 里，本地加载 | ✅ 当前 |
+| `3.x` | 下次换机制 | — |
+
+### 发新版只需要改一处
+
+`app/build.gradle` 里的 `versionCode` 和 `versionName`（该文件在 `.apk-build/webview-app/`）。
+
+然后重新构建 → zipalign → apksigner 签名 → 建 GitHub Release 附上 APK。
+
+> ⚠️ **内容已经内嵌进 APK**，所以改完 `index.html` **必须重新打包发新版**，
+> 不再像 PWA 那样刷新即生效。
+
+### 构建环境
+
+`.apk-build/`（**不在本仓库内**）装着 JDK、Android SDK、Gradle 缓存，约 2.5 GB。
+删掉能省空间，但下次要重下约 1 GB。
+
+签名密钥和密码在 `.apk-build/KEYSTORE-INFO.txt` —— **不要提交到任何仓库**。
+丢了密钥就再也无法发布能覆盖安装的更新。
+
+### 打包踩过的四个坑（换机器时会再遇到）
+
+1. `sdkmanager` 报 "IO exception while downloading manifest"，但同一个 URL 用 curl 是 200 ——
+   改用 **curl 手工下载 SDK 组件**并摆成目录结构
+2. AGP 要写 `~/.android`，而 **JVM 的 `user.home` 不认 `$HOME` 环境变量**（它读系统账户库）——
+   必须在 `gradle.properties` 里显式加 `-Duser.home=`，同时设 `ANDROID_USER_HOME`
+3. GitHub Pages **默认不发布 `.well-known` 目录**，需要 `.nojekyll`（只有 1.x TWA 方案需要）
+4. bubblewrap 模板生成的 `versionName` 是**空字符串**，要手工补
+
+---
+
+## 九、设计红线（改代码时请守住）
 
 这几条不是审美偏好，是这个工具能不能用的前提：
 
