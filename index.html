@@ -102,14 +102,18 @@ input,textarea{font-family:inherit}
 .pet.small{width:48px;height:48px}
 .pet svg{width:100%;height:100%;overflow:visible;display:block}
 .pet .body{fill:var(--pet-color,#f2a65a)}
-.pet .eye{transform-box:fill-box;transform-origin:center;animation:blink 5.4s infinite}
-@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
-@keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes hop{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-15px) rotate(-5deg)}65%{transform:translateY(0) rotate(2deg)}}
-@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
-.pet.mood-idle svg{animation:breathe 3.6s ease-in-out infinite}
-.pet.mood-cheer svg{animation:sway 2.4s ease-in-out infinite}
-.pet.mood-happy svg{animation:hop .62s ease-out 3}
+.pet .eye{transform-box:fill-box;transform-origin:center;animation:blink 4.2s infinite}
+@keyframes blink{0%,88%,100%{transform:scaleY(1)}92%{transform:scaleY(.08)}}
+@keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.04)}}
+@keyframes hop{0%,100%{transform:translateY(0) rotate(0) scale(1)}30%{transform:translateY(-18px) rotate(-6deg) scale(1.05)}65%{transform:translateY(0) rotate(3deg) scale(.97)}}
+@keyframes sway{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(6deg) translateY(-4px)}}
+@keyframes play{0%,100%{transform:translateY(0) rotate(0)}22%{transform:translateY(-12px) rotate(-8deg)}52%{transform:translateY(0) rotate(6deg)}76%{transform:translateY(-5px) rotate(-3deg)}}
+.pet{cursor:pointer}
+.pet:active{transform:scale(.93)}
+.pet.mood-idle svg{animation:breathe 2.8s ease-in-out infinite}
+.pet.mood-cheer svg{animation:sway 1.9s ease-in-out infinite}
+.pet.mood-happy svg{animation:hop .6s ease-out 3}
+.pet.mood-play svg{animation:play .9s ease-in-out}
 .pet.mood-sleep svg{animation:breathe 5.6s ease-in-out infinite;opacity:.72}
 .bubble{
   position:relative;max-width:216px;background:var(--card);border:1px solid var(--line);
@@ -131,6 +135,53 @@ input,textarea{font-family:inherit}
   border:1px solid var(--line);background:var(--card);color:var(--ink-2);transition:.14s;
 }
 .pp.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+
+/* ---------- 顶栏动作 ---------- */
+.top-actions{display:flex;align-items:center;gap:8px}
+/* 蓝点只在"刚倒进新东西"时闪几下就消失，不做常驻提醒 */
+.inbox-btn.pulse .dot{display:block;animation:dotpulse 1.1s ease-out 3}
+@keyframes dotpulse{0%{transform:scale(.5);opacity:.35}45%{transform:scale(1.5);opacity:1}100%{transform:scale(1);opacity:1}}
+
+/* ---------- 自定义时长 ---------- */
+.custom-dur{
+  display:none;align-items:center;gap:10px;justify-content:center;
+  margin:-8px 0 18px;font-size:14px;color:var(--ink-3);
+}
+.custom-dur.open{display:flex}
+.custom-dur input{
+  width:78px;padding:9px 10px;border-radius:11px;text-align:center;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);
+  font-size:16px;font-weight:700;outline:none;
+}
+.custom-dur input:focus{border-color:var(--accent)}
+.custom-dur .ok{
+  padding:9px 16px;border-radius:11px;background:var(--ink);color:var(--bg);
+  font-size:14px;font-weight:700;
+}
+
+/* ---------- 记录屏 ---------- */
+#screenLog{overflow:hidden}
+.log-head{display:flex;align-items:center;justify-content:space-between;flex:none;margin-bottom:4px}
+.log-head h2{margin:0;font-size:20px;font-weight:800}
+.log-head .x{font-size:15px;color:var(--ink-3);padding:8px 4px}
+.log-lead{font-size:13.5px;color:var(--ink-2);line-height:1.75;margin:0 0 14px;flex:none}
+.log-lead b{color:var(--ink)}
+.log-body{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;padding-bottom:10px}
+.log-day{font-size:12.5px;color:var(--ink-3);letter-spacing:1px;margin:20px 0 4px;font-weight:700}
+.log-day:first-child{margin-top:0}
+.entry{display:flex;gap:12px;position:relative}
+.entry .rail{width:16px;flex:none;display:flex;justify-content:center;position:relative;padding-top:12px}
+.entry .dotm{width:11px;height:11px;border-radius:50%;flex:none;background:var(--line);z-index:1}
+.entry.done .dotm{background:var(--ok)}
+.entry.part .dotm{background:var(--warn);opacity:.7}
+.entry .rail::before{content:"";position:absolute;top:23px;bottom:-12px;width:2px;background:var(--line)}
+.entry:last-child .rail::before{display:none}
+.entry .body{flex:1;min-width:0;padding:12px 0}
+.entry .txt{font-size:14.5px;line-height:1.55;color:var(--ink);word-break:break-word}
+.entry.part .txt{color:var(--ink-2)}
+.entry .meta{font-size:12px;color:var(--ink-3);margin-top:5px;font-variant-numeric:tabular-nums}
+.log-empty{font-size:14px;color:var(--ink-3);text-align:center;padding:44px 0;line-height:2}
 
 /* ---------- 计时屏 ---------- */
 #screenTimer{align-items:center;justify-content:center}
@@ -287,9 +338,12 @@ input,textarea{font-family:inherit}
 
   <div class="top">
     <div class="clock" id="clock">--:--</div>
-    <button class="inbox-btn" id="inboxBtn" type="button">
-      <span>箱子</span><span class="dot"></span>
-    </button>
+    <div class="top-actions">
+      <button class="inbox-btn" id="logBtn" type="button"><span>记录</span></button>
+      <button class="inbox-btn" id="inboxBtn" type="button">
+        <span>箱子</span><span class="dot"></span>
+      </button>
+    </div>
   </div>
 
   <!-- ========== 指挥屏 ========== -->
@@ -305,6 +359,12 @@ input,textarea{font-family:inherit}
       <button class="dur on" data-min="15" type="button">15 分</button>
       <button class="dur" data-min="25" type="button">25 分</button>
       <button class="dur" data-min="45" type="button">45 分</button>
+      <button class="dur" id="durCustomBtn" type="button">自定义</button>
+    </div>
+    <div class="custom-dur" id="customDur">
+      <input type="number" id="customMin" min="1" max="180" value="20" inputmode="numeric">
+      <span>分钟</span>
+      <button class="ok" id="customOk" type="button">用这个</button>
     </div>
     <button class="big primary" id="startBtn" type="button">开始</button>
     <button class="link" id="stuckBtn" type="button">我卡住了</button>
@@ -316,7 +376,7 @@ input,textarea{font-family:inherit}
     <div class="disc" id="disc">
       <div class="disc-inner">
         <div class="t-digits" id="tDigits">15:00</div>
-        <div class="t-label">还剩</div>
+        <div class="t-label" id="tLabel">还剩</div>
         <div class="t-task" id="tTask"></div>
       </div>
     </div>
@@ -327,7 +387,8 @@ input,textarea{font-family:inherit}
     <button class="big ok" id="doneBtn" type="button">做完了</button>
     <div class="timer-links">
       <button class="link" id="stuckBtn2" type="button">我卡住了</button>
-      <button class="link" id="stopBtn" type="button">停一下</button>
+      <button class="link" id="pauseBtn" type="button">暂停</button>
+      <button class="link" id="endBtn" type="button">结束这次</button>
     </div>
   </section>
 
@@ -373,15 +434,28 @@ input,textarea{font-family:inherit}
     <div class="inbox-foot">
       <div class="pet-pick" id="petPick">
         <span class="pp-label">小搭子</span>
-        <button class="pp" id="pet-cat" data-pet="cat" type="button">猫</button>
-        <button class="pp" id="pet-penguin" data-pet="penguin" type="button">企鹅</button>
-        <button class="pp" id="pet-hedgehog" data-pet="hedgehog" type="button">刺猬</button>
+        <button class="pp" id="pet-cat" type="button">猫</button>
+        <button class="pp" id="pet-penguin" type="button">企鹅</button>
+        <button class="pp" id="pet-hedgehog" type="button">刺猬</button>
+        <button class="pp" id="pet-rabbit" type="button">兔子</button>
+        <button class="pp" id="pet-bear" type="button">小熊</button>
+        <button class="pp" id="pet-frog" type="button">青蛙</button>
       </div>
     </div>
     <div class="inbox-foot">
       <button class="link" id="exportBtn" type="button" style="margin:0">使用摘要</button>
       <button class="link" id="resetDay" type="button" style="margin:0">重置今日计数</button>
     </div>
+  </section>
+
+  <!-- ========== 记录 ========== -->
+  <section class="screen" id="screenLog">
+    <div class="log-head">
+      <h2>记录</h2>
+      <button class="x" id="closeLog" type="button">返回</button>
+    </div>
+    <p class="log-lead" id="logLead"></p>
+    <div class="log-body" id="logBody"></div>
   </section>
 
 </div>
@@ -464,6 +538,9 @@ input,textarea{font-family:inherit}
     currentId: null,    // 当前轮到的任务
     minutes: 15,        // 选中的时长
     timer: null,        // { taskId, endAt, totalMin }
+    pause: null,        // { taskId, remainMs, totalMin } —— 暂停中的计时
+    customMin: 20,      // 自定义时长（分钟）
+    history: [],        // { id, text, status:"done"|"part", min, at }
     pet: { species: "cat" },
     stats: blankStats(), // 只存次数和类别，绝不存任务内容
     onboarded: false
@@ -501,7 +578,10 @@ input,textarea{font-family:inherit}
         state.currentId = s.currentId || null;
         state.minutes   = s.minutes || 15;
         state.timer     = s.timer || null;
-        state.pet       = (s.pet && s.pet.species) ? s.pet : { species: "cat" };
+        state.pause     = s.pause || null;
+        state.customMin = s.customMin || 20;
+        state.history   = Array.isArray(s.history) ? s.history : [];
+        state.pet       = (s.pet && s.pet.species && PETS[s.pet.species]) ? s.pet : { species: "cat" };
         state.onboarded = !!s.onboarded;
 
         var st = s.stats || {};
@@ -562,6 +642,17 @@ input,textarea{font-family:inherit}
   }
 
   /* ---------------- 提示条 ---------------- */
+  /* 蓝点只在刚倒进新东西时闪三下就消失 —— 不做常驻提醒，那不是待办债务。 */
+  var dotTimer = null;
+  function pulseInbox() {
+    var b = $("inboxBtn");
+    b.classList.remove("pulse");
+    void b.offsetWidth;
+    b.classList.add("pulse");
+    clearTimeout(dotTimer);
+    dotTimer = setTimeout(function () { b.classList.remove("pulse"); }, 3600);
+  }
+
   var tipTimer = null;
   function tip(msg) {
     var el = $("tip");
@@ -612,10 +703,15 @@ input,textarea{font-family:inherit}
      唯一规则：它永远不会因为她没做而难过。
      它只因她的任何动作而变好——包括只是打开这个 App。
      这里没有死亡、没有生病、没有"你已经 N 天没来"。 */
+  var PET_KEYS = ["cat", "penguin", "hedgehog", "rabbit", "bear", "frog"];
+
   var PETS = {
     cat:      { name: "小猫", color: "#f2a65a" },
     penguin:  { name: "企鹅", color: "#93aecf" },
-    hedgehog: { name: "刺猬", color: "#c9925f" }
+    hedgehog: { name: "刺猬", color: "#c9925f" },
+    rabbit:   { name: "兔子", color: "#e6d3e6" },
+    bear:     { name: "小熊", color: "#b08258" },
+    frog:     { name: "青蛙", color: "#7fc47f" }
   };
 
   var PET_SVG = {
@@ -653,6 +749,45 @@ input,textarea{font-family:inherit}
         '<circle class="eye" cx="41" cy="68" r="3.6" fill="#20242c"/>' +
         '<circle class="eye" cx="59" cy="68" r="3.6" fill="#20242c"/>' +
         '<circle cx="73" cy="72" r="4.2" fill="#20242c"/>' +
+      '</svg>',
+    rabbit:
+      '<svg viewBox="0 0 100 100">' +
+        '<ellipse class="body" cx="38" cy="30" rx="7.5" ry="23"/>' +
+        '<ellipse class="body" cx="62" cy="30" rx="7.5" ry="23"/>' +
+        '<ellipse cx="38" cy="31" rx="3.4" ry="16" fill="#f7d2da"/>' +
+        '<ellipse cx="62" cy="31" rx="3.4" ry="16" fill="#f7d2da"/>' +
+        '<circle class="body" cx="50" cy="66" r="26"/>' +
+        '<circle class="eye" cx="41" cy="62" r="3.9" fill="#20242c"/>' +
+        '<circle class="eye" cx="59" cy="62" r="3.9" fill="#20242c"/>' +
+        '<ellipse cx="50" cy="72" rx="3.4" ry="2.6" fill="#dd8fa0"/>' +
+        '<ellipse cx="30" cy="73" rx="4.6" ry="3" fill="#ffffff" opacity=".4"/>' +
+        '<ellipse cx="70" cy="73" rx="4.6" ry="3" fill="#ffffff" opacity=".4"/>' +
+      '</svg>',
+    bear:
+      '<svg viewBox="0 0 100 100">' +
+        '<circle class="body" cx="27" cy="36" r="11.5"/>' +
+        '<circle class="body" cx="73" cy="36" r="11.5"/>' +
+        '<circle cx="27" cy="36" r="5.6" fill="#e8c9a6"/>' +
+        '<circle cx="73" cy="36" r="5.6" fill="#e8c9a6"/>' +
+        '<circle class="body" cx="50" cy="62" r="29"/>' +
+        '<ellipse cx="50" cy="73" rx="15.5" ry="11.5" fill="#e8c9a6"/>' +
+        '<circle class="eye" cx="39" cy="55" r="4" fill="#20242c"/>' +
+        '<circle class="eye" cx="61" cy="55" r="4" fill="#20242c"/>' +
+        '<ellipse cx="50" cy="69" rx="4.2" ry="3.2" fill="#20242c"/>' +
+      '</svg>',
+    frog:
+      '<svg viewBox="0 0 100 100">' +
+        '<circle class="body" cx="29" cy="35" r="13.5"/>' +
+        '<circle class="body" cx="71" cy="35" r="13.5"/>' +
+        '<circle cx="29" cy="35" r="8.4" fill="#ffffff"/>' +
+        '<circle cx="71" cy="35" r="8.4" fill="#ffffff"/>' +
+        '<circle class="eye" cx="29" cy="35" r="4.4" fill="#20242c"/>' +
+        '<circle class="eye" cx="71" cy="35" r="4.4" fill="#20242c"/>' +
+        '<ellipse class="body" cx="50" cy="65" rx="31" ry="26"/>' +
+        '<ellipse cx="50" cy="73" rx="19" ry="12" fill="#ffffff" opacity=".28"/>' +
+        '<path d="M31 59 q19 17 38 0" stroke="#20242c" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+        '<ellipse cx="33" cy="79" rx="4.6" ry="3" fill="#ffffff" opacity=".4"/>' +
+        '<ellipse cx="67" cy="79" rx="4.6" ry="3" fill="#ffffff" opacity=".4"/>' +
       '</svg>'
   };
 
@@ -663,7 +798,10 @@ input,textarea{font-family:inherit}
     stuck: ["卡住很正常。挑个最小的。", "不用想通，先动一小下。"],
     done:  ["做完了。这一件算数。", "记下了。真的算数。", "又一件。我在。"],
     rest:  ["收工了。明天我还在。", "歇着吧，我不走。"],
-    idle:  ["不着急，我在这儿。", "慢慢来，我不催你。", "我等你。"]
+    idle:  ["不着急，我在这儿。", "慢慢来，我不催你。", "我等你。"],
+    tap:   ["嗯？我在呢。", "嘿。", "我在，你说。", "我陪你。", "在的在的。"],
+    pause: ["歇会儿。回来接着来。", "停一下也行，我不走。"],
+    part:  ["做过一会儿了，这算数。", "停下来也算数。"]
   };
 
   function pickOne(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -725,8 +863,39 @@ input,textarea{font-family:inherit}
     }, 45000);
   }
 
+  /* 让它看起来是活的：隔几秒自己动一下，间隔随机，不规律才像活的 */
+  var playTimer = null;
+  function petPlayLoop() {
+    clearTimeout(playTimer);
+    playTimer = setTimeout(function () {
+      ["petNow", "petRest"].forEach(function (id) {
+        var el = $(id);
+        if (el && el.className.indexOf("mood-idle") !== -1) wiggle(el);
+      });
+      var pt = $("petTimer");
+      if (pt && pt.className.indexOf("mood-cheer") !== -1) wiggle(pt);
+      petPlayLoop();
+    }, 3000 + Math.random() * 4200);
+  }
+
+  function wiggle(el) {
+    el.classList.remove("mood-play");
+    void el.offsetWidth;
+    el.classList.add("mood-play");
+    setTimeout(function () { el.classList.remove("mood-play"); }, 950);
+  }
+
+  /* 点它一下，它会回应 —— 不是功能，是陪伴 */
+  function petTap(id) {
+    var el = $(id);
+    if (!el) return;
+    wiggle(el);
+    petSpeak(id === "petTimer" ? "timer" : "now", "tap");
+    buzz(25);
+  }
+
   /* ---------------- 屏幕切换 ---------------- */
-  var SCREENS = ["screenNow", "screenTimer", "screenDone", "screenRest", "screenInbox"];
+  var SCREENS = ["screenNow", "screenTimer", "screenDone", "screenRest", "screenInbox", "screenLog"];
   function show(id) {
     SCREENS.forEach(function (s) { $(s).classList.toggle("active", s === id); });
     if (id === "screenNow") {
@@ -737,15 +906,10 @@ input,textarea{font-family:inherit}
 
   /* ---------------- 渲染：指挥屏 ---------------- */
   function renderNow() {
-    var boxHas = pending().length > 0;
-    $("inboxBtn").classList.toggle("has", boxHas);
-
     var t = currentTask();
     if (t) {
       $("nowKicker").textContent = "现在只做这一件";
       $("nowTask").textContent = t.text;
-      $("startBtn").disabled = false;
-      $("startBtn").style.opacity = "1";
       $("footNote").textContent = "";
     } else {
       $("nowKicker").textContent = "箱子空了";
@@ -753,29 +917,121 @@ input,textarea{font-family:inherit}
       $("footNote").innerHTML = "点右上角「箱子」，把脑子里的事都倒进去。<br>现在没想法的话，也可以随便做一件小事。";
     }
 
+    /* 有暂停中的计时 → 主按钮变成「继续」 */
+    var p = state.pause;
+    var resumable = !!(p && t && p.taskId === t.id && p.remainMs > 500);
+    var btn = $("startBtn");
+    if (resumable) {
+      btn.textContent = "继续（还剩 " + Math.max(1, Math.round(p.remainMs / 60000)) + " 分）";
+      btn.className = "big ok";
+    } else {
+      btn.textContent = "开始";
+      btn.className = "big primary";
+    }
+
+    /* 时长芯片：固定四档 + 自定义 */
     var chips = $("durPick").children;
     for (var i = 0; i < chips.length; i++) {
-      chips[i].classList.toggle("on", parseInt(chips[i].getAttribute("data-min"), 10) === state.minutes);
+      var v = parseInt(chips[i].getAttribute("data-min"), 10);
+      chips[i].classList.toggle("on", v === state.minutes);
     }
+    var customOn = [5, 15, 25, 45].indexOf(state.minutes) === -1;
+    var cb = $("durCustomBtn");
+    cb.classList.toggle("on", customOn);
+    cb.textContent = customOn ? state.minutes + " 分" : "自定义";
+    $("customDur").classList.toggle("open", customOn);
+  }
+
+  /* ---------------- 记录（完成 / 做了一会儿） ----------------
+     只记"发生过什么"，不记"欠了多少"。 */
+  function logEntry(t, status, minutes) {
+    if (!t) return;
+    state.history.unshift({
+      id: "h" + Date.now() + Math.random().toString(36).slice(2, 6),
+      text: t.text,
+      status: status,
+      min: Math.max(0, Math.round(minutes)),
+      at: Date.now()
+    });
+    if (state.history.length > 400) state.history.length = 400;
+  }
+
+  /* 已经做掉多少分钟 = 总时长 − 剩余 */
+  function elapsedMin() {
+    if (!state.timer) return 0;
+    var left = Math.max(0, state.timer.endAt - Date.now());
+    return Math.max(0, state.timer.totalMin - left / 60000);
+  }
+
+  function taskById(id) {
+    return state.tasks.filter(function (x) { return x.id === id; })[0];
   }
 
   /* ---------------- 计时 ---------------- */
   var tick = null;
 
-  function startTimer(minutes) {
-    var t = currentTask();
-    if (!t) { tip("箱子是空的，先倒一件事进来"); return; }
-    state.timer = { taskId: t.id, endAt: Date.now() + minutes * 60000, totalMin: minutes };
-    state.currentId = t.id;
+  function beginTimer(taskId, totalMin, remainMs) {
+    state.timer = { taskId: taskId, totalMin: totalMin, endAt: Date.now() + remainMs };
+    state.pause = null;
+    state.currentId = taskId;
     save();
     show("screenTimer");
-    $("tTask").textContent = t.text;
+    var t = taskById(taskId);
+    $("tTask").textContent = t ? t.text : "";
     $("doneBtn").textContent = "做完了";
     petMood("petTimer", "small", "cheer");
     petSpeak("timer", "start");
     keepAwake();
     runTick();
     if (!tick) tick = setInterval(runTick, 250);
+  }
+
+  function startTimer(minutes) {
+    var t = currentTask();
+    if (!t) { tip("箱子是空的，先倒一件事进来"); return; }
+    var p = state.pause;
+    if (p && p.taskId === t.id && p.remainMs > 500) { resumeTimer(); return; }
+    beginTimer(t.id, minutes, minutes * 60000);
+  }
+
+  function resumeTimer() {
+    var p = state.pause;
+    if (!p) return;
+    beginTimer(p.taskId, p.totalMin, p.remainMs);
+    tip("接着来");
+  }
+
+  /* 暂停：时间冻在这里，随时能继续 */
+  function pauseTimer() {
+    if (!state.timer) return;
+    state.pause = {
+      taskId: state.timer.taskId,
+      remainMs: Math.max(0, state.timer.endAt - Date.now()),
+      totalMin: state.timer.totalMin
+    };
+    state.timer = null;
+    stopTimer();
+    save();
+    petSpeak("now", "pause");
+    renderAll();
+    show("screenNow");
+    tip("暂停了。想接着做，点「继续」。");
+  }
+
+  /* 结束这次：如实记下"做了一会儿"，然后回主屏。不是失败，是收尾。 */
+  function endAttempt() {
+    var t = currentTask();
+    var em = elapsedMin();
+    stopTimer();
+    state.timer = null;
+    state.pause = null;
+    if (t && em >= 0.5) logEntry(t, "part", em);
+    state.currentId = null;
+    save();
+    petSpeak("now", "part");
+    renderAll();
+    show("screenNow");
+    tip(em >= 0.5 ? "记下了：做了一会儿" : "好，先放下");
   }
 
   function runTick() {
@@ -787,6 +1043,7 @@ input,textarea{font-family:inherit}
     var m = Math.floor(left / 60000);
     var s = Math.floor((left % 60000) / 1000);
     $("tDigits").textContent = m + ":" + String(s).padStart(2, "0");
+    $("tLabel").textContent = "还剩 " + Math.max(1, Math.round(left / 60000)) + " 分钟";
 
     var ratio = total > 0 ? left / total : 0;
     var color = ratio > 0.5 ? "var(--ok)" : (ratio > 0.2 ? "var(--warn)" : "var(--danger)");
@@ -799,6 +1056,7 @@ input,textarea{font-family:inherit}
       letSleep();
       beep(); buzz([180, 90, 180]);
       $("tDigits").textContent = "0:00";
+      $("tLabel").textContent = "时间到了";
       $("doneBtn").textContent = "时间到了 · 做完了";
       tip("时间到了。做完了就点它，没做完也可以点。");
     }
@@ -811,8 +1069,10 @@ input,textarea{font-family:inherit}
 
   function finishCurrent() {
     var t = currentTask();
+    var em = elapsedMin();
     stopTimer();
     state.timer = null;
+    state.pause = null;
 
     if (t) {
       t.done = true;
@@ -821,6 +1081,7 @@ input,textarea{font-family:inherit}
       state.stats.done += 1;
       var dk = todayStr();
       state.stats.days[dk] = (state.stats.days[dk] || 0) + 1;
+      logEntry(t, "done", em);
     }
     save();
 
@@ -854,6 +1115,7 @@ input,textarea{font-family:inherit}
         b.addEventListener("click", function () {
           addTasks([s], true);
           save(); renderAll();
+          pulseInbox();
           tip("已经放进箱子");
         });
         wrap.appendChild(b);
@@ -903,6 +1165,91 @@ input,textarea{font-family:inherit}
   function renderAll() {
     renderNow();
     renderList();
+  }
+
+  /* ---------------- 记录屏 ----------------
+     只呈现"发生过什么"，不呈现"欠了多少"。
+     没有进度条、没有完成率、没有红色的未完成。 */
+  function dayKey(ts) {
+    var d = new Date(ts);
+    return d.getFullYear() + "-" +
+           String(d.getMonth() + 1).padStart(2, "0") + "-" +
+           String(d.getDate()).padStart(2, "0");
+  }
+
+  function dayLabel(key) {
+    if (key === todayStr()) return "今天";
+    var y = new Date(); y.setDate(y.getDate() - 1);
+    if (key === dayKey(y.getTime())) return "昨天";
+    var p = key.split("-");
+    return Number(p[1]) + " 月 " + Number(p[2]) + " 日";
+  }
+
+  function hhmm(ts) {
+    var d = new Date(ts);
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  function renderLog() {
+    var body = $("logBody");
+    body.innerHTML = "";
+
+    if (!state.history.length) {
+      $("logLead").innerHTML = "这里会记下你<b>做过</b>的事。";
+      var e = document.createElement("div");
+      e.className = "log-empty";
+      e.innerHTML = "还没有记录。<br>做过的会出现在这里。";
+      body.appendChild(e);
+      return;
+    }
+
+    var groups = [], idx = {};
+    state.history.forEach(function (h) {
+      var k = dayKey(h.at);
+      if (idx[k] === undefined) { idx[k] = groups.length; groups.push({ day: k, items: [] }); }
+      groups[idx[k]].items.push(h);
+    });
+
+    var todayGroup = groups.filter(function (g) { return g.day === todayStr(); })[0];
+    var n = todayGroup ? todayGroup.items.length : 0;
+    $("logLead").innerHTML = n
+      ? "今天你坐下来做了 <b>" + n + "</b> 次。"
+      : "这是你之前做过的事。";
+
+    groups.forEach(function (g) {
+      var head = document.createElement("div");
+      head.className = "log-day";
+      head.textContent = dayLabel(g.day);
+      body.appendChild(head);
+
+      g.items.forEach(function (it) {
+        var row = document.createElement("div");
+        row.className = "entry " + (it.status === "done" ? "done" : "part");
+
+        var rail = document.createElement("div");
+        rail.className = "rail";
+        var dot = document.createElement("div");
+        dot.className = "dotm";
+        rail.appendChild(dot);
+
+        var b = document.createElement("div");
+        b.className = "body";
+        var txt = document.createElement("div");
+        txt.className = "txt";
+        txt.textContent = it.text;
+        var meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = hhmm(it.at) + " ｜ " +
+          (it.status === "done" ? "完成了" : "做了一会儿") +
+          (it.min > 0 ? " ｜ " + it.min + " 分钟" : "");
+        b.appendChild(txt);
+        b.appendChild(meta);
+
+        row.appendChild(rail);
+        row.appendChild(b);
+        body.appendChild(row);
+      });
+    });
   }
 
   /* ---------------- 卡住面板 ---------------- */
@@ -1000,33 +1347,47 @@ input,textarea{font-family:inherit}
   /* ---------------- 事件 ---------------- */
   $("inboxBtn").addEventListener("click", function () { renderList(); show("screenInbox"); });
   $("closeInbox").addEventListener("click", function () { renderAll(); show("screenNow"); });
+  $("logBtn").addEventListener("click", function () { renderLog(); show("screenLog"); });
+  $("closeLog").addEventListener("click", function () { renderAll(); show("screenNow"); });
 
   $("addBtn").addEventListener("click", function () {
     var n = addTasks($("dump").value.split("\n"), false);
     $("dump").value = "";
     save(); renderAll();
+    if (n) pulseInbox();
     tip(n ? "放进箱子 " + n + " 件" : "写点什么再放进来");
   });
 
   $("durPick").addEventListener("click", function (e) {
     var b = e.target.closest(".dur");
     if (!b) return;
+    if (b.id === "durCustomBtn") {
+      var ci = $("customMin");
+      $("customDur").classList.add("open");
+      ci.value = state.minutes;
+      setTimeout(function () { ci.focus(); ci.select(); }, 60);
+      return;
+    }
     state.minutes = parseInt(b.getAttribute("data-min"), 10);
     save(); renderNow();
+  });
+
+  $("customOk").addEventListener("click", function () {
+    var v = parseInt($("customMin").value, 10);
+    if (!v || v < 1) { tip("填个分钟数，比如 30"); return; }
+    if (v > 180) v = 180;
+    state.minutes = v;
+    state.customMin = v;
+    save(); renderNow();
+    tip("用 " + v + " 分钟");
   });
 
   $("startBtn").addEventListener("click", function () { startTimer(state.minutes); });
   $("doneBtn").addEventListener("click", finishCurrent);
   $("stuckBtn").addEventListener("click", openSheet);
   $("stuckBtn2").addEventListener("click", openSheet);
-
-  $("stopBtn").addEventListener("click", function () {
-    stopTimer();
-    save();
-    renderAll();
-    show("screenNow");
-    tip("停一下没关系，回来接着做");
-  });
+  $("pauseBtn").addEventListener("click", pauseTimer);
+  $("endBtn").addEventListener("click", endAttempt);
 
   $("againBtn").addEventListener("click", function () {
     state.currentId = null;
@@ -1042,9 +1403,15 @@ input,textarea{font-family:inherit}
   });
 
   /* 换小搭子 */
-  ["cat", "penguin", "hedgehog"].forEach(function (k) {
+  PET_KEYS.forEach(function (k) {
     var b = $("pet-" + k);
     if (b) b.addEventListener("click", function () { choosePet(k); });
+  });
+
+  /* 点小搭子，它会回应 */
+  ["petNow", "petTimer", "petRest"].forEach(function (id) {
+    var el = $(id);
+    if (el) el.addEventListener("click", function () { petTap(id); });
   });
 
   $("backBtn").addEventListener("click", function () {
@@ -1181,6 +1548,7 @@ input,textarea{font-family:inherit}
     $("splitBack").value = "";
     state.currentId = null;
     save(); renderAll(); closeSheet(); show("screenNow");
+    if (n) pulseInbox();
     tip(n ? "拆成 " + n + " 小步，放在最前面" : "还没粘东西进来");
   });
 
@@ -1204,6 +1572,7 @@ input,textarea{font-family:inherit}
   save();
   paintPets();
   renderPetPick();
+  petPlayLoop();
 
   if (state.timer && state.timer.endAt > Date.now()) {
     show("screenTimer");
