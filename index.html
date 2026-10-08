@@ -111,6 +111,7 @@ input,textarea{font-family:inherit}
 .pet{cursor:pointer}
 .pet:active{transform:scale(.93)}
 .pet.mood-idle svg{animation:breathe 2.8s ease-in-out infinite}
+.pet.mood-doze svg{animation:breathe 4.8s ease-in-out infinite}
 .pet.mood-cheer svg{animation:sway 1.9s ease-in-out infinite}
 .pet.mood-happy svg{animation:hop .6s ease-out 3}
 .pet.mood-play svg{animation:play .9s ease-in-out}
@@ -137,6 +138,78 @@ input,textarea{font-family:inherit}
 .pp.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
 
+
+/* ---------- 天气罐 ----------
+   因果方向是单向的：
+     她的任何动作 → 天气变好
+     她什么都不做 → 天气只是慢慢回到"阴"，那不是惩罚，是天气本来就会变
+   天气下限永远是阴天：不会下雨、不会打雷、不会下雪。
+   小动物在阴天只是打盹 —— 它永远不会因为她没做而难受。 */
+.jar-row{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:18px}
+.jar{position:relative;width:130px;flex:none}
+.jar-lid{
+  width:52px;height:11px;margin:0 auto -3px;border-radius:6px 6px 3px 3px;
+  background:linear-gradient(#cbaa7a,#a8875a);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45);position:relative;z-index:2;
+}
+.jar-glass{
+  position:relative;height:124px;border-radius:16px 16px 22px 22px;overflow:hidden;
+  border:2px solid rgba(255,255,255,.8);background:#c9d2dc;
+  box-shadow:0 10px 22px -14px rgba(16,24,40,.65), inset 0 0 20px rgba(255,255,255,.3);
+}
+.jar-sky{position:absolute;inset:0;transition:background .9s ease}
+.jar[data-lv="0"] .jar-sky{background:linear-gradient(#c3ccd8,#e0e6ed)}
+.jar[data-lv="1"] .jar-sky{background:linear-gradient(#b7d0e7,#f3e7cf)}
+.jar[data-lv="2"] .jar-sky{background:linear-gradient(#8dc4ef,#e3f3ff)}
+.jar[data-lv="3"] .jar-sky{background:linear-gradient(#9ed0f5,#ffeacb)}
+.jar[data-lv="4"] .jar-sky{background:linear-gradient(#1d2551,#3b2f6d 58%,#5c4180)}
+.jar-weather,.jar-deco{position:absolute;inset:0;pointer-events:none}
+.jar-ground{
+  position:absolute;left:0;right:0;bottom:0;height:26px;
+  background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.06)),#a9c78f;
+  border-radius:0 0 20px 20px;transition:background .9s ease;
+}
+.jar[data-lv="4"] .jar-ground{background:linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.4)),#41604e}
+.jar-pet{position:absolute;left:0;right:0;bottom:7px;display:flex;justify-content:center;z-index:3}
+.jar-pet .pet{width:52px;height:52px}
+.jar-shine{
+  position:absolute;top:7px;left:10px;width:15px;bottom:34px;border-radius:10px;
+  background:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.04));
+  transform:skewX(-6deg);pointer-events:none;z-index:4;
+}
+.w-sun{
+  position:absolute;top:13px;right:14px;width:29px;height:29px;border-radius:50%;
+  background:radial-gradient(circle,#fff8cf 28%,#ffd75e 72%);
+  box-shadow:0 0 18px 6px rgba(255,214,94,.5);animation:sunpulse 4.2s ease-in-out infinite;
+}
+@keyframes sunpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+.w-cloud{
+  position:absolute;width:30px;height:14px;border-radius:999px;background:rgba(255,255,255,.9);
+  box-shadow:11px 3px 0 -2px rgba(255,255,255,.9), 22px 0 0 -5px rgba(255,255,255,.9);
+}
+.w-cloud.c1{top:19px;left:11px;animation:drift 9s ease-in-out infinite}
+.w-cloud.c2{top:41px;left:50px;transform:scale(.76);opacity:.78;animation:drift 12s ease-in-out infinite reverse}
+@keyframes drift{0%,100%{transform:translateX(0)}50%{transform:translateX(9px)}}
+.w-rainbow{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);width:104px;height:52px;overflow:hidden}
+.w-rainbow::after{
+  content:"";position:absolute;left:2px;top:0;width:100px;height:100px;border-radius:50%;
+  box-shadow:inset 0 0 0 5px #ff9a9a, inset 0 0 0 10px #ffc46b,
+             inset 0 0 0 15px #ffe680, inset 0 0 0 20px #9ade9a,
+             inset 0 0 0 25px #8ac6f8, inset 0 0 0 30px #b79bf0;
+  opacity:.88;
+}
+.w-stars i{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;animation:twinkle 2.6s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.22;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
+/* 永久装饰：只增不减 */
+.jd{position:absolute;bottom:7px}
+.jd-grass{left:15px;width:3px;height:13px;border-radius:2px;background:#6fa85a;box-shadow:5px 2px 0 #6fa85a,-4px 3px 0 #7fbb68}
+.jd-flower{right:20px;width:7px;height:7px;border-radius:50%;background:#f098b4;box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+.jd-stone{left:36px;width:13px;height:8px;border-radius:50% 50% 40% 40%;background:#b9bec7}
+.jd-lamp{right:13px;bottom:22px;width:9px;height:12px;border-radius:3px 3px 1px 1px;background:#ffd98a;box-shadow:0 0 12px 4px rgba(255,215,120,.65)}
+.jd-tree{left:11px;bottom:7px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:20px solid #5f9c52}
+.jd-vine{left:7px;top:0;width:3px;height:34px;border-radius:2px;background:#7fbb68;box-shadow:8px 7px 0 -1px #7fbb68}
+.jd-pond{left:50%;margin-left:-16px;width:33px;height:9px;border-radius:50%;background:rgba(130,190,235,.85)}
+.jd-firefly{right:28px;top:52px;width:4px;height:4px;border-radius:50%;background:#fff3a8;box-shadow:0 0 8px 3px rgba(255,240,150,.9);animation:twinkle 2s ease-in-out infinite}
 /* ---------- 顶栏动作 ---------- */
 .top-actions{display:flex;align-items:center;gap:8px}
 /* 蓝点只在"刚倒进新东西"时闪几下就消失，不做常驻提醒 */
@@ -348,8 +421,18 @@ input,textarea{font-family:inherit}
 
   <!-- ========== 指挥屏 ========== -->
   <section class="screen active" id="screenNow">
-    <div class="pet-row">
-      <div class="pet mood-idle" id="petNow"></div>
+    <div class="jar-row">
+      <div class="jar" id="jar" data-lv="0">
+        <div class="jar-lid"></div>
+        <div class="jar-glass">
+          <div class="jar-sky"></div>
+          <div class="jar-weather" id="jarWeather"></div>
+          <div class="jar-deco" id="jarDeco"></div>
+          <div class="jar-ground"></div>
+          <div class="jar-pet"><div class="pet small mood-doze" id="petNow"></div></div>
+          <div class="jar-shine"></div>
+        </div>
+      </div>
       <div class="bubble" id="bubbleNow"></div>
     </div>
     <p class="kicker" id="nowKicker">现在只做这一件</p>
@@ -542,6 +625,7 @@ input,textarea{font-family:inherit}
     customMin: 20,      // 自定义时长（分钟）
     history: [],        // { id, text, status:"done"|"part", min, at }
     pet: { species: "cat" },
+    jar: { energy: 0, total: 0, seen: 0, lastAt: Date.now() },  // 天气罐：energy 会回落，total 只增不减
     stats: blankStats(), // 只存次数和类别，绝不存任务内容
     onboarded: false
   };
@@ -582,6 +666,7 @@ input,textarea{font-family:inherit}
         state.customMin = s.customMin || 20;
         state.history   = Array.isArray(s.history) ? s.history : [];
         state.pet       = (s.pet && s.pet.species && PETS[s.pet.species]) ? s.pet : { species: "cat" };
+        state.jar       = Object.assign({ energy: 0, total: 0, seen: 0, lastAt: Date.now() }, s.jar || {});
         state.onboarded = !!s.onboarded;
 
         var st = s.stats || {};
@@ -801,7 +886,11 @@ input,textarea{font-family:inherit}
     idle:  ["不着急，我在这儿。", "慢慢来，我不催你。", "我等你。"],
     tap:   ["嗯？我在呢。", "嘿。", "我在，你说。", "我陪你。", "在的在的。"],
     pause: ["歇会儿。回来接着来。", "停一下也行，我不走。"],
-    part:  ["做过一会儿了，这算数。", "停下来也算数。"]
+    part:  ["做过一会儿了，这算数。", "停下来也算数。"],
+    jar1:  ["云在散开。", "好像要晴了。"],
+    jar2:  ["今天天气不错。", "太阳挺好。"],
+    jar3:  ["你看，彩虹。", "有彩虹了。"],
+    jar4:  ["星星都出来了。", "今晚有星星。"]
   };
 
   function pickOne(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -870,7 +959,8 @@ input,textarea{font-family:inherit}
     playTimer = setTimeout(function () {
       ["petNow", "petRest"].forEach(function (id) {
         var el = $(id);
-        if (el && el.className.indexOf("mood-idle") !== -1) wiggle(el);
+        if (el && (el.className.indexOf("mood-idle") !== -1 ||
+                   el.className.indexOf("mood-doze") !== -1)) wiggle(el);
       });
       var pt = $("petTimer");
       if (pt && pt.className.indexOf("mood-cheer") !== -1) wiggle(pt);
@@ -892,6 +982,110 @@ input,textarea{font-family:inherit}
     wiggle(el);
     petSpeak(id === "petTimer" ? "timer" : "now", "tap");
     buzz(25);
+  }
+
+  /* ---------------- 天气罐 ----------------
+     因果方向是单向的：
+       她的任何动作 → 天气变好（包括打开 App、倒东西、甚至点「我卡住了」）
+       她什么都不做 → 天气只是慢慢回到「阴」
+     那不是惩罚，是天气本来就会变。下限永远是阴天。
+     ——罐子里的待办数量不参与天气，永远不参与。 */
+  var JAR_LEVELS = ["阴", "转晴", "晴", "彩虹", "星夜"];
+
+  var JAR_UNLOCKS = [
+    { at: 6,   cls: "jd-grass",   name: "一株小草" },
+    { at: 18,  cls: "jd-flower",  name: "一朵小花" },
+    { at: 35,  cls: "jd-stone",   name: "一颗小石头" },
+    { at: 60,  cls: "jd-lamp",    name: "一盏小灯" },
+    { at: 95,  cls: "jd-tree",    name: "一棵小树" },
+    { at: 140, cls: "jd-vine",    name: "垂下来的小藤" },
+    { at: 200, cls: "jd-pond",    name: "一汪小水洼" },
+    { at: 280, cls: "jd-firefly", name: "萤火虫" }
+  ];
+
+  function jarLevel() {
+    var e = (state.jar && state.jar.energy) || 0;
+    if (e >= 85) return 4;
+    if (e >= 60) return 3;
+    if (e >= 35) return 2;
+    if (e >= 15) return 1;
+    return 0;
+  }
+
+  /* 自然回落：只跟时间有关，跟"她做没做"无关。留 1 小时宽限。 */
+  function jarDecay() {
+    var j = state.jar;
+    if (!j || !j.lastAt) return;
+    var hrs = (Date.now() - j.lastAt) / 3600000;
+    if (hrs <= 1) return;
+    j.energy = Math.max(0, j.energy - (hrs - 1) * 0.35);
+    j.lastAt = Date.now() - 3600000;
+  }
+
+  /* 做任何事都给它加点天气。它只会因此变好。 */
+  function jarGain(pts) {
+    var j = state.jar;
+    if (!j || !pts) return;
+    var before = jarLevel();
+    j.energy = Math.min(100, (j.energy || 0) + pts);
+    j.total  = (j.total || 0) + pts;
+    j.lastAt = Date.now();
+
+    var after = jarLevel();
+    if (after > before) {
+      petSpeak("now", "jar" + after);
+      tip("天气变了：" + JAR_LEVELS[after]);
+      petMood("petNow", "small", "happy");
+      beep(); buzz(60);
+    }
+    jarAnnounce();
+    renderJar();
+    save();
+  }
+
+  /* 永久解锁，只增不减 */
+  function jarAnnounce() {
+    var total = state.jar.total || 0;
+    var seen  = state.jar.seen || 0;
+    var got = JAR_UNLOCKS.filter(function (u) { return total >= u.at && seen < u.at; });
+    if (!got.length) return;
+    state.jar.seen = got[got.length - 1].at;
+    setTimeout(function () { tip("罐子里多了一样东西：" + got[got.length - 1].name); }, 1400);
+  }
+
+  function renderJar() {
+    var jar = $("jar");
+    if (!jar) return;
+    var lv = jarLevel();
+    jar.setAttribute("data-lv", String(lv));
+
+    var w = "";
+    if (lv >= 1) w += '<div class="w-sun"></div>';
+    if (lv <= 1) w += '<div class="w-cloud c1"></div>';
+    if (lv === 0) w += '<div class="w-cloud c2"></div>';
+    if (lv === 2) w += '<div class="w-cloud c1"></div>';
+    if (lv >= 3) w += '<div class="w-rainbow"></div>';
+    if (lv >= 4) {
+      var st = "";
+      for (var i = 0; i < 14; i++) {
+        st += '<i style="left:' + Math.round(6 + Math.random() * 84) + '%;top:' +
+              Math.round(6 + Math.random() * 54) + 'px;animation-delay:' +
+              (Math.random() * 2.6).toFixed(1) + 's"></i>';
+      }
+      w += '<div class="w-stars">' + st + '</div>';
+    }
+    $("jarWeather").innerHTML = w;
+
+    var d = "";
+    JAR_UNLOCKS.forEach(function (u) {
+      if ((state.jar.total || 0) >= u.at) d += '<div class="jd ' + u.cls + '"></div>';
+    });
+    $("jarDeco").innerHTML = d;
+
+    var pj = $("petNow");
+    if (pj && pj.className.indexOf("mood-happy") === -1 && pj.className.indexOf("mood-play") === -1) {
+      pj.className = "pet small mood-" + (lv === 0 ? "doze" : "idle");
+    }
   }
 
   /* ---------------- 屏幕切换 ---------------- */
@@ -992,6 +1186,7 @@ input,textarea{font-family:inherit}
     var p = state.pause;
     if (p && p.taskId === t.id && p.remainMs > 500) { resumeTimer(); return; }
     beginTimer(t.id, minutes, minutes * 60000);
+    jarGain(2);
   }
 
   function resumeTimer() {
@@ -1013,6 +1208,7 @@ input,textarea{font-family:inherit}
     stopTimer();
     save();
     petSpeak("now", "pause");
+    jarGain(1);
     renderAll();
     show("screenNow");
     tip("暂停了。想接着做，点「继续」。");
@@ -1025,7 +1221,7 @@ input,textarea{font-family:inherit}
     stopTimer();
     state.timer = null;
     state.pause = null;
-    if (t && em >= 0.5) logEntry(t, "part", em);
+    if (t && em >= 0.5) { logEntry(t, "part", em); jarGain(3); }
     state.currentId = null;
     save();
     petSpeak("now", "part");
@@ -1082,6 +1278,7 @@ input,textarea{font-family:inherit}
       var dk = todayStr();
       state.stats.days[dk] = (state.stats.days[dk] || 0) + 1;
       logEntry(t, "done", em);
+      jarGain(7);
     }
     save();
 
@@ -1115,7 +1312,7 @@ input,textarea{font-family:inherit}
         b.addEventListener("click", function () {
           addTasks([s], true);
           save(); renderAll();
-          pulseInbox();
+          pulseInbox(); jarGain(2);
           tip("已经放进箱子");
         });
         wrap.appendChild(b);
@@ -1258,6 +1455,7 @@ input,textarea{font-family:inherit}
     $("splitPanel").classList.remove("open");
     $("sheet").classList.add("open");
     petSpeak("now", "stuck");
+    jarGain(2);
     state.stats.stuck += 1;
     var t = currentTask();
     if (t) {
@@ -1325,6 +1523,7 @@ input,textarea{font-family:inherit}
     addTasks([step], true);
     state.currentId = state.tasks[0].id;
     state.stats.microUsed += 1;
+    jarGain(3);
     save();
     renderAll();
     closeSheet();
@@ -1354,7 +1553,7 @@ input,textarea{font-family:inherit}
     var n = addTasks($("dump").value.split("\n"), false);
     $("dump").value = "";
     save(); renderAll();
-    if (n) pulseInbox();
+    if (n) { pulseInbox(); jarGain(Math.min(6, n * 2)); }
     tip(n ? "放进箱子 " + n + " 件" : "写点什么再放进来");
   });
 
@@ -1517,6 +1716,7 @@ input,textarea{font-family:inherit}
     if (act === "swap") {
       closeSheet();
       rotateCurrent();
+      jarGain(1);
       save(); renderAll();
       show("screenNow");
       tip("换了一件，这件不算失败");
@@ -1548,7 +1748,7 @@ input,textarea{font-family:inherit}
     $("splitBack").value = "";
     state.currentId = null;
     save(); renderAll(); closeSheet(); show("screenNow");
-    if (n) pulseInbox();
+    if (n) { pulseInbox(); jarGain(Math.min(6, n * 2)); }
     tip(n ? "拆成 " + n + " 小步，放在最前面" : "还没粘东西进来");
   });
 
@@ -1573,6 +1773,8 @@ input,textarea{font-family:inherit}
   paintPets();
   renderPetPick();
   petPlayLoop();
+  jarDecay();
+  jarGain(1);          // 打开 App 本身就算一次动作
 
   if (state.timer && state.timer.endAt > Date.now()) {
     show("screenTimer");
