@@ -68,6 +68,17 @@ input,textarea{font-family:inherit}
 .screen{display:none;flex:1;min-height:0;flex-direction:column}
 .screen.active{display:flex}
 
+/* ---------- 就一点 ---------- */
+.done-dot{margin:0 0 20px;font-size:13.5px;color:var(--ink-3);letter-spacing:.4px}
+.done-dot b{color:var(--accent);font-weight:700}
+.done-dot:empty{display:none}
+.log-dots{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:12px 14px;margin-bottom:12px;font-size:13.5px;color:var(--ink-2);line-height:1.5;
+}
+.log-dots b{color:var(--accent);font-size:17px;font-weight:700;margin:0 2px}
+.log-dots span{display:block;margin-top:4px;font-size:12px;color:var(--ink-3);line-height:1.6}
+
 /* ---------- 指挥屏 ---------- */
 #screenNow{justify-content:center;text-align:center;padding-bottom:8px}
 .kicker{font-size:14px;color:var(--ink-3);letter-spacing:3px;margin:0 0 18px}
@@ -93,7 +104,7 @@ input,textarea{font-family:inherit}
   text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--line);
 }
 .link:active{color:var(--ink)}
-.footnote{margin-top:auto;font-size:13px;color:var(--ink-3);text-align:center;padding-bottom:6px;line-height:1.7}
+.footnote{margin-top:18px;font-size:13px;color:var(--ink-3);text-align:center;padding-bottom:6px;line-height:1.7}
 
 /* ---------- 小搭子 ----------
    唯一规则：它永远不会因为她没做而难过。 */
@@ -104,18 +115,31 @@ input,textarea{font-family:inherit}
 .pet .body{fill:var(--pet-color,#f2a65a)}
 .pet .eye{transform-box:fill-box;transform-origin:center;animation:blink 4.2s infinite}
 @keyframes blink{0%,88%,100%{transform:scaleY(1)}92%{transform:scaleY(.08)}}
-@keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.04)}}
+/* 眼珠偶尔挪一下——幅度极小，只是让它看起来还醒着 */
+.pet .glance{transform-box:fill-box;transform-origin:center;animation:glance 9s ease-in-out infinite}
+@keyframes glance{0%,62%,100%{transform:translate(0,0)}70%{transform:translate(1.1px,.5px)}82%{transform:translate(-1px,0)}}
+/* 呼吸从脚底发生（原来整体上浮 7px，看着像贴纸在飘），顺带一丝极轻的摇摆 */
+@keyframes breathe{0%,100%{transform:translateY(0) rotate(0) scale(1,1)}25%{transform:translateY(-1px) rotate(-.8deg) scale(.996,1.03)}50%{transform:translateY(0) rotate(0) scale(1,1)}75%{transform:translateY(-1px) rotate(.8deg) scale(.996,1.03)}}
 @keyframes hop{0%,100%{transform:translateY(0) rotate(0) scale(1)}30%{transform:translateY(-18px) rotate(-6deg) scale(1.05)}65%{transform:translateY(0) rotate(3deg) scale(.97)}}
 @keyframes sway{0%,100%{transform:rotate(-6deg) translateY(0)}50%{transform:rotate(6deg) translateY(-4px)}}
 @keyframes play{0%,100%{transform:translateY(0) rotate(0)}22%{transform:translateY(-12px) rotate(-8deg)}52%{transform:translateY(0) rotate(6deg)}76%{transform:translateY(-5px) rotate(-3deg)}}
+/* 偶尔歪一下头：整只轻轻偏一下，不是持续晃动 */
+@keyframes tilt{0%,74%,100%{transform:rotate(0)}80%{transform:rotate(-2deg)}90%{transform:rotate(1.4deg)}}
 .pet{cursor:pointer}
-.pet:active{transform:scale(.93)}
+.pet:active{filter:brightness(1.12)}
+.pet svg{transform-origin:50% 100%}
+.pet.mood-idle{animation:tilt 12s ease-in-out infinite}
 .pet.mood-idle svg{animation:breathe 2.8s ease-in-out infinite}
+.pet.mood-doze{animation:tilt 19s ease-in-out infinite}
 .pet.mood-doze svg{animation:breathe 4.8s ease-in-out infinite}
 .pet.mood-cheer svg{animation:sway 1.9s ease-in-out infinite}
 .pet.mood-happy svg{animation:hop .6s ease-out 3}
 .pet.mood-play svg{animation:play .9s ease-in-out}
 .pet.mood-sleep svg{animation:breathe 5.6s ease-in-out infinite;opacity:.72}
+/* 系统里说了"减少动态效果"，我们就真的不动 */
+@media (prefers-reduced-motion:reduce){
+  .pet,.pet svg,.pet .eye,.pet .glance{animation:none!important}
+}
 .bubble{
   position:relative;max-width:216px;background:var(--card);border:1px solid var(--line);
   border-radius:15px;padding:10px 13px;font-size:13.5px;line-height:1.6;color:var(--ink-2);
@@ -164,14 +188,43 @@ input,textarea{font-family:inherit}
 .jar[data-lv="3"] .jar-sky{background:linear-gradient(#9ed0f5,#ffeacb)}
 .jar[data-lv="4"] .jar-sky{background:linear-gradient(#1d2551,#3b2f6d 58%,#5c4180)}
 .jar-weather,.jar-deco{position:absolute;inset:0;pointer-events:none}
+/* 罐子大小固定：它是一个"看进一个小世界的窗口"。
+   收集变多时，是世界缩放（像无限画布缩去看全貌），不是罐子长大。 */
+.jar{width:130px}
+.jar-glass{height:124px}
+.jar-world{
+  position:absolute;inset:0;z-index:2;
+  transform-origin:50% 100%;
+  transform:scale(var(--zs,1));
+  transition:transform .85s cubic-bezier(.34,1.15,.64,1);
+}
 .jar-ground{
   position:absolute;left:0;right:0;bottom:0;height:26px;
   background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.06)),#a9c78f;
   border-radius:0 0 20px 20px;transition:background .9s ease;
 }
 .jar[data-lv="4"] .jar-ground{background:linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.4)),#41604e}
-.jar-pet{position:absolute;left:0;right:0;bottom:7px;display:flex;justify-content:center;z-index:3}
-.jar-pet .pet{width:52px;height:52px}
+/* 住进来的搭子：排在她挑的那只两侧，一只都不会被挡住 */
+.jar-buddies{display:flex;align-items:flex-end;gap:2px;pointer-events:none}
+.jar-pet .jar-buddies .pet{width:19px;height:19px;cursor:default}
+.jar-buddies:empty{display:none}
+/* 村子：茅草屋 → 木屋 → 石屋。一排排往后退，像村子往远处延伸。 */
+.jar-folk{position:absolute;inset:0;z-index:2;pointer-events:none}
+.jar-folk i{
+  position:absolute;transform:translateX(-50%);
+  background-repeat:no-repeat;background-position:bottom center;background-size:contain;
+}
+.jar-folk i.hut{background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Cpath d='M3 21 L22 5 L41 21 Z' fill='%23cfa958'/%3E%3Cpath d='M3 21 L22 5 L41 21' fill='none' stroke='%23a9873f' stroke-width='2'/%3E%3Crect x='11' y='21' width='22' height='15' fill='%23e9dcc0'/%3E%3Crect x='18' y='27' width='7' height='9' fill='%238b6a44'/%3E%3C/svg%3E")}
+.jar-folk i.cabin{background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Cpath d='M2 20 L22 4 L42 20 Z' fill='%238d5f3d'/%3E%3Cpath d='M2 20 L22 4 L42 20' fill='none' stroke='%236b472c' stroke-width='2'/%3E%3Crect x='10' y='20' width='24' height='16' fill='%23c39a6b'/%3E%3Cpath d='M10 26 h24 M10 31 h24' stroke='%23a87f52' stroke-width='1.4'/%3E%3Crect x='18' y='27' width='7' height='9' fill='%236f4a2f'/%3E%3C/svg%3E")}
+.jar-folk i.stone{background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 40'%3E%3Cpath d='M4 20 Q22 3 40 20 Z' fill='%238d97a3'/%3E%3Cpath d='M4 20 Q22 3 40 20' fill='none' stroke='%236b7480' stroke-width='2'/%3E%3Crect x='9' y='20' width='26' height='16' fill='%23b9c2cc'/%3E%3Ccircle cx='15' cy='26' r='2.4' fill='%23a3adb8'/%3E%3Ccircle cx='30' cy='31' r='2.2' fill='%23a3adb8'/%3E%3Crect x='18' y='28' width='7' height='8' fill='%236f7883'/%3E%3C/svg%3E")}
+.jar-pet{position:absolute;left:0;right:0;bottom:7px;display:flex;align-items:flex-end;justify-content:center;gap:3px;z-index:4}
+/* 让搭子"坐在"地上，而不是浮在罐子里 */
+.jar-pet::after{
+  content:"";position:absolute;left:50%;bottom:-1px;width:58px;height:11px;z-index:-1;
+  transform:translateX(-50%);border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(12,26,14,.5),rgba(12,26,14,0) 72%);
+}
+.jar-pet .pet{width:44px;height:44px}
 .jar-shine{
   position:absolute;top:7px;left:10px;width:15px;bottom:34px;border-radius:10px;
   background:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.04));
@@ -201,15 +254,16 @@ input,textarea{font-family:inherit}
 .w-stars i{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;animation:twinkle 2.6s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.22;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
 /* 永久装饰：只增不减 */
-.jd{position:absolute;bottom:7px}
-.jd-grass{left:15px;width:3px;height:13px;border-radius:2px;background:#6fa85a;box-shadow:5px 2px 0 #6fa85a,-4px 3px 0 #7fbb68}
-.jd-flower{right:20px;width:7px;height:7px;border-radius:50%;background:#f098b4;box-shadow:0 0 0 2px rgba(255,255,255,.6)}
-.jd-stone{left:36px;width:13px;height:8px;border-radius:50% 50% 40% 40%;background:#b9bec7}
-.jd-lamp{right:13px;bottom:22px;width:9px;height:12px;border-radius:3px 3px 1px 1px;background:#ffd98a;box-shadow:0 0 12px 4px rgba(255,215,120,.65)}
-.jd-tree{left:11px;bottom:7px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:20px solid #5f9c52}
-.jd-vine{left:7px;top:0;width:3px;height:34px;border-radius:2px;background:#7fbb68;box-shadow:8px 7px 0 -1px #7fbb68}
-.jd-pond{left:50%;margin-left:-16px;width:33px;height:9px;border-radius:50%;background:rgba(130,190,235,.85)}
-.jd-firefly{right:28px;top:52px;width:4px;height:4px;border-radius:50%;background:#fff3a8;box-shadow:0 0 8px 3px rgba(255,240,150,.9);animation:twinkle 2s ease-in-out infinite}
+/* 装饰属于远景：退到村子后面去，不和搭子抢前排（越靠上 = 越远） */
+.jd{position:absolute}
+.jd-grass{left:11px;bottom:43px;width:3px;height:13px;border-radius:2px;background:#6fa85a;box-shadow:5px 2px 0 #6fa85a,-4px 3px 0 #7fbb68}
+.jd-flower{right:16px;bottom:43px;width:7px;height:7px;border-radius:50%;background:#f098b4;box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+.jd-stone{left:23px;bottom:37px;width:13px;height:8px;border-radius:50% 50% 40% 40%;background:#b9bec7}
+.jd-lamp{right:9px;bottom:39px;width:9px;height:12px;border-radius:3px 3px 1px 1px;background:#ffd98a;box-shadow:0 0 12px 4px rgba(255,215,120,.65)}
+.jd-tree{left:4px;bottom:38px;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:20px solid #5f9c52}
+.jd-vine{left:6px;top:3px;width:3px;height:34px;border-radius:2px;background:#7fbb68;box-shadow:8px 7px 0 -1px #7fbb68}
+.jd-pond{left:13px;margin-left:0;bottom:27px;width:33px;height:9px;border-radius:50%;background:rgba(130,190,235,.85)}
+.jd-firefly{right:24px;top:44px;width:4px;height:4px;border-radius:50%;background:#fff3a8;box-shadow:0 0 8px 3px rgba(255,240,150,.9);animation:twinkle 2s ease-in-out infinite}
 /* ---------- 顶栏动作 ---------- */
 .top-actions{display:flex;align-items:center;gap:8px}
 /* 蓝点只在"刚倒进新东西"时闪几下就消失，不做常驻提醒 */
@@ -407,6 +461,28 @@ input,textarea{font-family:inherit}
 </head>
 <body>
 
+<!-- 搭子统一的光影层：从平色里算出体积与边缘光。任何一只（含以后新增的）自动继承，不用逐只手绘。
+     只做"光"，不做"色"——所以换配色不会破坏它。 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="petCraft" x="-45%" y="-45%" width="190%" height="190%" color-interpolation-filters="sRGB">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b"/>
+    <feComposite in="b" in2="SourceAlpha" operator="out" result="halo"/>
+    <feOffset in="halo" dx="-2.4" dy="-2.8" result="hDn"/>
+    <feComposite in="hDn" in2="SourceAlpha" operator="in" result="mDn"/>
+    <feFlood flood-color="#40200a" flood-opacity=".32" result="cDn"/>
+    <feComposite in="cDn" in2="mDn" operator="in" result="shade"/>
+    <feOffset in="halo" dx="2.2" dy="2.4" result="hUp"/>
+    <feComposite in="hUp" in2="SourceAlpha" operator="in" result="mUp"/>
+    <feFlood flood-color="#ffffff" flood-opacity=".55" result="cUp"/>
+    <feComposite in="cUp" in2="mUp" operator="in" result="rim"/>
+    <feMerge>
+      <feMergeNode in="SourceGraphic"/>
+      <feMergeNode in="shade"/>
+      <feMergeNode in="rim"/>
+    </feMerge>
+  </filter>
+</defs></svg>
+
 <div id="app">
 
   <div class="top">
@@ -427,9 +503,16 @@ input,textarea{font-family:inherit}
         <div class="jar-glass">
           <div class="jar-sky"></div>
           <div class="jar-weather" id="jarWeather"></div>
-          <div class="jar-deco" id="jarDeco"></div>
           <div class="jar-ground"></div>
-          <div class="jar-pet"><div class="pet small mood-doze" id="petNow"></div></div>
+          <div class="jar-world" id="jarWorld">
+            <div class="jar-deco" id="jarDeco"></div>
+            <div class="jar-folk" id="jarFolk"></div>
+            <div class="jar-pet">
+              <div class="jar-buddies" id="jarBuddies"></div>
+              <div class="pet small mood-doze" id="petNow"></div>
+              <div class="jar-buddies" id="jarBuddies2"></div>
+            </div>
+          </div>
           <div class="jar-shine"></div>
         </div>
       </div>
@@ -485,6 +568,7 @@ input,textarea{font-family:inherit}
     <h2 class="done-title" id="doneTitle">完成了</h2>
     <p class="done-task" id="doneTask"></p>
     <p class="done-count" id="doneCount">今天已完成 1 件</p>
+    <p class="done-dot" id="doneDot"><b>「就一点」</b> +1</p>
     <button class="big primary" id="againBtn" type="button">再做一件</button>
     <button class="ghost-big" id="restBtn" type="button">今天就到这</button>
   </section>
@@ -625,7 +709,7 @@ input,textarea{font-family:inherit}
     customMin: 20,      // 自定义时长（分钟）
     history: [],        // { id, text, status:"done"|"part", min, at }
     pet: { species: "cat" },
-    jar: { energy: 0, total: 0, seen: 0, lastAt: Date.now() },  // 天气罐：energy 会回落，total 只增不减
+    jar: { energy: 0, dots: 0, seen: 0, lastAt: Date.now() },  // 天气：energy（会回落的状态）｜唯一的货币：dots（就一点，只增不减）
     stats: blankStats(), // 只存次数和类别，绝不存任务内容
     onboarded: false
   };
@@ -666,7 +750,16 @@ input,textarea{font-family:inherit}
         state.customMin = s.customMin || 20;
         state.history   = Array.isArray(s.history) ? s.history : [];
         state.pet       = (s.pet && s.pet.species && PETS[s.pet.species]) ? s.pet : { species: "cat" };
-        state.jar       = Object.assign({ energy: 0, total: 0, seen: 0, lastAt: Date.now() }, s.jar || {});
+        state.jar       = Object.assign({ energy: 0, dots: 0, seen: 0, lastAt: Date.now() }, s.jar || {});
+        /* 老存档迁移：以前用"分"记收集（完成一件约 7 分），现在换成「就一点」（完成一件 = 1 点）。
+           按 7:1 折算过来，她已经收集到的东西一样都不会少，也不会被重复播报。 */
+        if (typeof (s.jar || {}).dots !== "number") {
+          state.jar.dots = Math.max(0, Math.round(((s.jar && s.jar.total) || 0) / 7));
+          var seenAt = 0;
+          JAR_UNLOCKS.forEach(function (u) { if (u.at <= state.jar.dots) seenAt = u.at; });
+          state.jar.seen = seenAt;
+        }
+        delete state.jar.total;   /* 老字段：以前那个会累计的"分"。读完就丢，往后只有一个货币。 */
         state.onboarded = !!s.onboarded;
 
         var st = s.stats || {};
@@ -823,17 +916,14 @@ input,textarea{font-family:inherit}
       '</svg>',
     hedgehog:
       '<svg viewBox="0 0 100 100">' +
-        '<g class="body">' +
-          '<path d="M24 60 L30 37 L40 56 Z"/>' +
-          '<path d="M38 54 L46 29 L56 52 Z"/>' +
-          '<path d="M54 52 L64 29 L72 54 Z"/>' +
-          '<path d="M68 56 L78 39 L84 60 Z"/>' +
-          '<path d="M20 66 a34 26 0 0 1 64 0 z"/>' +
-        '</g>' +
-        '<ellipse cx="50" cy="70" rx="32" ry="13" fill="#f7e0c4"/>' +
-        '<circle class="eye" cx="41" cy="68" r="3.6" fill="#20242c"/>' +
-        '<circle class="eye" cx="59" cy="68" r="3.6" fill="#20242c"/>' +
-        '<circle cx="73" cy="72" r="4.2" fill="#20242c"/>' +
+        /* 正面像其他 5 只：圆身体 + 沿外圈一圈锯齿背刺 + 圆脸。
+           刺写成一整条连续折线，分开画会像戴了顶皇冠。 */
+        '<path class="body" d="M16 66 L27 57 L24 43 L39 44 L46 30 L57 40 L70 35 L72 49 L86 54 L88 66 Z"/>' +
+        '<circle class="body" cx="52" cy="66" r="29"/>' +
+        '<ellipse cx="52" cy="73" rx="20" ry="15" fill="#f7e0c4"/>' +
+        '<circle class="eye" cx="44" cy="70" r="3.5" fill="#20242c"/>' +
+        '<circle class="eye" cx="60" cy="70" r="3.5" fill="#20242c"/>' +
+        '<circle cx="52" cy="78" r="3.4" fill="#20242c"/>' +
       '</svg>',
     rabbit:
       '<svg viewBox="0 0 100 100">' +
@@ -906,7 +996,48 @@ input,textarea{font-family:inherit}
       if (!el) return;
       el.innerHTML = PET_SVG[sp];
       el.style.setProperty("--pet-color", PETS[sp].color);
+      craftPet(el);
     });
+  }
+
+  /* 统一的"手艺层"：不逐只手绘，而是从任何一只搭子的形状里算出光影和眼神。
+     新加一只搭子，只要用 class="body" 画轮廓，就自动获得体积、边缘光和眼睛高光。
+     -- 只算"光"，不动"色"，所以换配色不会破坏它。 */
+  function craftPet(host) {
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = host.querySelector("svg");
+    if (!svg || svg.dataset.crafted) return;
+    svg.dataset.crafted = "1";
+    svg.setAttribute("filter", "url(#petCraft)");
+
+    var eyes = svg.querySelectorAll("circle.eye");
+    for (var i = 0; i < eyes.length; i++) {
+      var c = eyes[i];
+      var cx = parseFloat(c.getAttribute("cx"));
+      var cy = parseFloat(c.getAttribute("cy"));
+      var r = parseFloat(c.getAttribute("r"));
+      if (isNaN(cx) || isNaN(cy) || isNaN(r)) continue;
+
+      /* 眼睛包成两层：外层管眨眼，内层管"看哪儿"，高光跟眼珠一起动 */
+      var blinkG = document.createElementNS(NS, "g");
+      blinkG.setAttribute("class", "eye");
+      var lookG = document.createElementNS(NS, "g");
+      lookG.setAttribute("class", "glance");
+
+      c.removeAttribute("class");
+      c.parentNode.insertBefore(blinkG, c);
+      blinkG.appendChild(lookG);
+      lookG.appendChild(c);
+
+      var hi = document.createElementNS(NS, "circle");
+      hi.setAttribute("class", "hi");
+      hi.setAttribute("cx", (cx - r * 0.34).toFixed(2));
+      hi.setAttribute("cy", (cy - r * 0.38).toFixed(2));
+      hi.setAttribute("r", (r * 0.34).toFixed(2));
+      hi.setAttribute("fill", "#ffffff");
+      hi.setAttribute("opacity", ".9");
+      lookG.appendChild(hi);
+    }
   }
 
   function petMood(id, base, mood) {
@@ -937,6 +1068,7 @@ input,textarea{font-family:inherit}
     state.pet = { species: key };
     save();
     paintPets();
+    renderJar();          /* 换搭子后要重排罐子里的住户：她挑的那只走到最前面 */
     renderPetPick();
     petSpeak("now", "open");
     tip("换了只" + PETS[key].name + "，它归你了");
@@ -992,16 +1124,55 @@ input,textarea{font-family:inherit}
      ——罐子里的待办数量不参与天气，永远不参与。 */
   var JAR_LEVELS = ["阴", "转晴", "晴", "彩虹", "星夜"];
 
+  /* 永久收集：每一项都是"走到的"，不是"抽到的"。
+     间隔前密后疏——早期几乎每完成一件就多一样，后面慢慢拉长。
+     原因：物品池是有限的（原型实测，一上来就每件必得，20 多件之后就再也掏不出新东西了），
+     而"盼头"必须留给后面，不能在第一周就用完。 */
   var JAR_UNLOCKS = [
-    { at: 6,   cls: "jd-grass",   name: "一株小草" },
-    { at: 18,  cls: "jd-flower",  name: "一朵小花" },
-    { at: 35,  cls: "jd-stone",   name: "一颗小石头" },
-    { at: 60,  cls: "jd-lamp",    name: "一盏小灯" },
-    { at: 95,  cls: "jd-tree",    name: "一棵小树" },
-    { at: 140, cls: "jd-vine",    name: "垂下来的小藤" },
-    { at: 200, cls: "jd-pond",    name: "一汪小水洼" },
-    { at: 280, cls: "jd-firefly", name: "萤火虫" }
+    { at: 1,   deco: "jd-grass",   name: "一株小草" },
+    { at: 2,   hut: 1,             name: "一间茅草屋" },
+    { at: 4,   buddy: "penguin",   name: "一只搭子 · 企鹅" },
+    { at: 6,   deco: "jd-flower",  name: "一朵小花" },
+    { at: 8,   hut: 1,             name: "一间茅草屋" },
+    { at: 10,  buddy: "hedgehog",  name: "一只搭子 · 刺猬" },
+    { at: 13,  hut: 1,             name: "一间茅草屋" },
+    { at: 16,  deco: "jd-stone",   name: "一颗小石头" },
+    { at: 19,  buddy: "rabbit",    name: "一只搭子 · 兔子" },
+    { at: 23,  hut: 1,             name: "一间茅草屋" },
+    { at: 27,  deco: "jd-lamp",    name: "一盏小灯" },
+    { at: 31,  buddy: "bear",      name: "一只搭子 · 小熊" },
+    { at: 35,  hut: 1,             name: "一间茅草屋" },
+    { at: 40,  deco: "jd-tree",    name: "一棵小树" },
+    { at: 45,  buddy: "frog",      name: "一只搭子 · 青蛙" },
+    { at: 50,  hut: 1,             name: "一间茅草屋" },
+    { at: 56,  deco: "jd-vine",    name: "垂下来的小藤" },
+    { at: 62,  hut: 1,             name: "一间茅草屋" },
+    { at: 68,  deco: "jd-pond",    name: "一汪小水洼" },
+    { at: 74,  hut: 1,             name: "一间茅草屋" },
+    { at: 81,  deco: "jd-firefly", name: "萤火虫" }
   ];
+
+  /* 村子：三合一。
+     每 3 间茅草屋 → 翻新成 1 间木屋；每 3 间木屋 → 翻新成 1 间石屋。
+     留下来的房子是"翻新"出来的，不是凭空多出来的——所以罐子越往后越清爽。
+     上一级房子画得更大，翻新那一刻看起来是"变好了"，不是"变少了"。 */
+  var FOLK_TIERS = { hut: 17, cabin: 22, stone: 28 };   /* 每一级房的大小（px）——大一级大一点，但不喧宾夺主 */
+
+  function jarVillage() {
+    var dots = (state.jar && state.jar.dots) || 0;
+    var huts = 0, buddies = [], unlocked = 0;
+    JAR_UNLOCKS.forEach(function (u) {
+      if (dots < u.at) return;
+      unlocked++;
+      if (u.hut) huts++;
+      if (u.buddy) buddies.push(u.buddy);
+    });
+    var cabins = Math.floor(huts / 3);
+    huts = huts - cabins * 3;                 /* 被翻新的那 3 间不再单独显示 */
+    var stones = Math.floor(cabins / 3);
+    cabins = cabins - stones * 3;
+    return { huts: huts, cabins: cabins, stones: stones, buddies: buddies, unlocked: unlocked };
+  }
 
   function jarLevel() {
     var e = (state.jar && state.jar.energy) || 0;
@@ -1022,13 +1193,15 @@ input,textarea{font-family:inherit}
     j.lastAt = Date.now() - 3600000;
   }
 
-  /* 做任何事都给它加点天气。它只会因此变好。 */
+  /* 天气不是货币。
+     它会涨会落、不累计、不兑换、不算钱——它是"最近怎么样"的样子。
+     这个程序只有一个货币：「就一点」（见 jarDots），只增不减。
+     所以这里只动 energy 这一个状态值，没有第二个累加器。 */
   function jarGain(pts) {
     var j = state.jar;
     if (!j || !pts) return;
     var before = jarLevel();
     j.energy = Math.min(100, (j.energy || 0) + pts);
-    j.total  = (j.total || 0) + pts;
     j.lastAt = Date.now();
 
     var after = jarLevel();
@@ -1043,11 +1216,31 @@ input,textarea{font-family:inherit}
     save();
   }
 
+  /* 「就一点」：每做完一件事，多一点。
+     只增不减，主屏上不显示数字——它不是欠债，是走过的路。
+     注意：其他动作（倒事情、开始、卡住、暂停、换一件）照样让天气变好，
+     但只有"做完了"才留下就一点。 */
+  function jarDots() {
+    var j = state.jar;
+    if (!j) return;
+    var b4 = jarVillage();
+    j.dots = (j.dots || 0) + 1;
+    var now = jarVillage();
+    jarAnnounce();
+    renderJar();
+    save();
+    if (now.stones > b4.stones) {
+      setTimeout(function () { tip("3 间木屋翻新成了 1 间石屋"); }, 2600);
+    } else if (now.cabins > b4.cabins) {
+      setTimeout(function () { tip("3 间茅草屋翻新成了 1 间木屋"); }, 2600);
+    }
+  }
+
   /* 永久解锁，只增不减 */
   function jarAnnounce() {
-    var total = state.jar.total || 0;
-    var seen  = state.jar.seen || 0;
-    var got = JAR_UNLOCKS.filter(function (u) { return total >= u.at && seen < u.at; });
+    var dots = state.jar.dots || 0;
+    var seen = state.jar.seen || 0;
+    var got = JAR_UNLOCKS.filter(function (u) { return dots >= u.at && seen < u.at; });
     if (!got.length) return;
     state.jar.seen = got[got.length - 1].at;
     setTimeout(function () { tip("罐子里多了一样东西：" + got[got.length - 1].name); }, 1400);
@@ -1077,10 +1270,60 @@ input,textarea{font-family:inherit}
     $("jarWeather").innerHTML = w;
 
     var d = "";
+    var v = jarVillage();
     JAR_UNLOCKS.forEach(function (u) {
-      if ((state.jar.total || 0) >= u.at) d += '<div class="jd ' + u.cls + '"></div>';
+      if (u.deco && (state.jar.dots || 0) >= u.at) d += '<div class="jd ' + u.deco + '"></div>';
     });
     $("jarDeco").innerHTML = d;
+
+    /* 村子：大房子站中间，小房子往两边排；按实际宽度定位，不会互相压 */
+    var folkList = [];
+    for (var q = 0; q < v.huts; q++) folkList.push("hut");
+    for (q = 0; q < v.cabins; q++) folkList.push("cabin");
+    for (q = 0; q < v.stones; q++) folkList.push("stone");
+    /* 大房子站中间，小房子往两边——比"左边全是小屋、右边全是大屋"像个村子 */
+    folkList.sort(function (a2, b2) { return FOLK_TIERS[b2] - FOLK_TIERS[a2]; });
+    var mid = [];
+    folkList.forEach(function (k3, i3) { if (i3 % 2) mid.push(k3); else mid.unshift(k3); });
+    folkList = mid;
+
+    var nf = folkList.length;
+    var JARW = 130, GAP = 2;
+    var width = 0;
+    folkList.forEach(function (k2, i2) { width += FOLK_TIERS[k2] + (i2 ? GAP : 0); });
+    var f = "", cx = (JARW - width) / 2;
+    folkList.forEach(function (k2) {
+      var sz = FOLK_TIERS[k2];
+      f += '<i class="' + k2 + '" style="left:' + (cx + sz / 2).toFixed(1) + 'px;'
+        + 'bottom:29px;width:' + sz + 'px;height:' + sz + 'px"></i>';
+      cx += sz + GAP;
+    });
+    $("jarFolk").innerHTML = f;
+
+    /* 住进来的搭子：她挑的那只永远在最前面中间，所以这里不重复画它 */
+    var mine = petSpecies();
+    var crew = v.buddies.filter(function (key) { return key !== mine && PET_SVG[key]; });
+    var half = Math.ceil(crew.length / 2);
+    [["jarBuddies", crew.slice(0, half)], ["jarBuddies2", crew.slice(half)]].forEach(function (pair) {
+      var box = $(pair[0]);
+      if (!box) return;
+      box.innerHTML = pair[1].map(function (key) {
+        return '<div class="pet" data-sp="' + key + '">' + PET_SVG[key] + "</div>";
+      }).join("");
+      Array.prototype.forEach.call(box.children, function (el) {
+        el.style.setProperty("--pet-color", PETS[el.getAttribute("data-sp")].color);
+        craftPet(el);
+      });
+    });
+
+    /* 无限画布：罐子大小不变，世界缩放去适配。
+       视口 130×124（去掉边距），取"最宽的一层"和"最高的一层"里小的那个比例。 */
+    var rowW  = crew.length * 21 + 44 + 10;                        /* 住户 + 她挑的那只 */
+    var wide  = Math.max(rowW, width + 10, 56);
+    var tall  = 28 + (nf ? FOLK_TIERS[folkList[nf - 1]] || 34 : 0) + 26;
+    var z = Math.min(1, 122 / wide, 116 / tall);
+    z = Math.max(0.40, z);                                         /* 再小就看不见了，到此为止 */
+    $("jarWorld").style.setProperty("--zs", z.toFixed(3));
 
     var pj = $("petNow");
     if (pj && pj.className.indexOf("mood-happy") === -1 && pj.className.indexOf("mood-play") === -1) {
@@ -1278,13 +1521,15 @@ input,textarea{font-family:inherit}
       var dk = todayStr();
       state.stats.days[dk] = (state.stats.days[dk] || 0) + 1;
       logEntry(t, "done", em);
-      jarGain(7);
+      jarGain(7);        /* 天气：做完一件，天气大好 */
+      jarDots();         /* 就一点：只增不减的那一点 */
     }
     save();
 
     $("doneTask").textContent = t ? t.text : "";
     $("doneCount").textContent = "今天已完成 " + state.doneToday + " 件";
     $("doneTitle").textContent = state.doneToday >= 5 ? "又一件。你今天很稳。" : "完成了";
+    $("doneDot").innerHTML = t ? '<b>「就一点」</b> +1' : "";
     beep(); buzz(90);
     petMood("petDone", "small", "happy");
     petSpeak("now", "done");
@@ -1398,6 +1643,14 @@ input,textarea{font-family:inherit}
       e.innerHTML = "还没有记录。<br>做过的会出现在这里。";
       body.appendChild(e);
       return;
+    }
+
+    if ((state.jar.dots || 0) > 0) {
+      var d0 = document.createElement("div");
+      d0.className = "log-dots";
+      d0.innerHTML = "你已经攒下 <b>" + state.jar.dots + "</b> 点「就一点」"
+        + '<span>每做完一件事，多一点。只增不减。</span>';
+      body.appendChild(d0);
     }
 
     var groups = [], idx = {};
