@@ -169,7 +169,7 @@ input,textarea{font-family:inherit}
      她什么都不做 → 天气只是慢慢回到"阴"，那不是惩罚，是天气本来就会变
    天气下限永远是阴天：不会下雨、不会打雷、不会下雪。
    小动物在阴天只是打盹 —— 它永远不会因为她没做而难受。 */
-.jar-row{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:18px}
+.jar-row{display:flex;align-items:center;justify-content:center;margin-bottom:20px}
 .jar{position:relative;width:130px;flex:none}
 .jar-lid{
   width:52px;height:11px;margin:0 auto -3px;border-radius:6px 6px 3px 3px;
@@ -516,7 +516,8 @@ input,textarea{font-family:inherit}
           <div class="jar-shine"></div>
         </div>
       </div>
-      <div class="bubble" id="bubbleNow"></div>
+      <!-- 主屏不放气泡：罐子要正正地待在中间，旁边不挂字。
+           小搭子改用动作说话——呼吸、眨眼、偶尔歪头、做完一件跳一下。 -->
     </div>
     <p class="kicker" id="nowKicker">现在只做这一件</p>
     <h1 class="task-title" id="nowTask">把桌上的三个杯子拿到厨房</h1>
@@ -1045,6 +1046,10 @@ input,textarea{font-family:inherit}
     if (el) el.className = "pet" + (base ? " " + base : "") + " mood-" + mood;
   }
 
+  /* 主屏不再有小气泡（罐子要居中，旁边不挂字），所以 which === "now" 时这里拿不到元素，
+     静默跳过即可——小搭子改由动作表达（breathe / blink / tilt / hop）。
+     台词一条没删，都还在 PET_LINES 里；哪天想让它再开口，把 #bubbleNow 加回主屏就行。
+     计时屏的 #bubbleTimer 照旧。 */
   function say(which, text) {
     var el = $(which === "timer" ? "bubbleTimer" : "bubbleNow");
     if (el) el.textContent = text || "";
