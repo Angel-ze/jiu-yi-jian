@@ -79,7 +79,7 @@ const check = (name, ok, detail) => { results.push({ name, ok: !!ok, detail }); 
   check('搭子挂了统一光影层', craft.filter === 'url(#petCraft)', `filter=${craft.filter}`);
   check('每只眼睛都有高光', craft.eyes > 0 && craft.hi === craft.eyes && craft.hasHiInEveryEye, `${craft.eyes} 只眼 / ${craft.hi} 个高光`);
 
-  /* 3. 行为链：她的动作 → 天气变好，且只升不降 */
+  /* 3. 行为链：用户动作 → 天气变好，且只升不降 */
   const snap = () => ev(`var q=function(s){return document.querySelector(s)};
     var st=null; try{st=JSON.parse(localStorage.getItem('jiuyijian.v1'))}catch(e){}
     return {e: st&&st.jar?Math.round(st.jar.energy*100)/100:null, lv:+q('#jar').getAttribute('data-lv'),
@@ -96,7 +96,7 @@ const check = (name, ok, detail) => { results.push({ name, ok: !!ok, detail }); 
   const a3 = await snap();
   const chain = [a0, a1, a2, a3];
   check('打开 App 即 +1', a0.e > 0, `energy=${a0.e}`);
-  check('她的动作只能让天气变好（单调递增）', chain.every((s, i) => i === 0 || s.e > chain[i - 1].e), chain.map((s) => s.e).join(' → '));
+  check('用户动作只能让天气变好（单调递增）', chain.every((s, i) => i === 0 || s.e > chain[i - 1].e), chain.map((s) => s.e).join(' → '));
   check('天气档位只升不降', chain.every((s, i) => i === 0 || s.lv >= chain[i - 1].lv), chain.map((s) => s.lv).join(' → '));
   check('下限是阴天：只有云，没有雨/雷/雪', a0.clouds === 2 && a0.lv === 0, `首屏 ${a0.clouds} 个天气元素, lv=${a0.lv}`);
 

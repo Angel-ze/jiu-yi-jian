@@ -11,8 +11,8 @@ android {
         minSdk 21
         targetSdk 36
         // versionCode = 主×10000 + 次×100 + 修订，永远单调递增
-        versionCode 10401
-        versionName "1.4.1"
+        versionCode 10402
+        versionName "1.4.2"
     }
 
     buildTypes {
