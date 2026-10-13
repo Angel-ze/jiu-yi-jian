@@ -107,7 +107,7 @@ input,textarea{font-family:inherit}
 .footnote{margin-top:18px;font-size:13px;color:var(--ink-3);text-align:center;padding-bottom:6px;line-height:1.7}
 
 /* ---------- 小搭子 ----------
-   唯一规则：它永远不会因为她没做而难过。 */
+   唯一规则：它永远不会因为你没做而难过。 */
 .pet-row{display:flex;align-items:center;gap:11px;justify-content:center;margin-bottom:16px;min-height:64px}
 .pet{width:64px;height:64px;flex:none}
 .pet.small{width:48px;height:48px}
@@ -165,10 +165,10 @@ input,textarea{font-family:inherit}
 
 /* ---------- 天气罐 ----------
    因果方向是单向的：
-     她的任何动作 → 天气变好
-     她什么都不做 → 天气只是慢慢回到"阴"，那不是惩罚，是天气本来就会变
+     你的任何动作 → 天气变好
+     你什么都不做 → 天气只是慢慢回到"阴"，那不是惩罚，是天气本来就会变
    天气下限永远是阴天：不会下雨、不会打雷、不会下雪。
-   小动物在阴天只是打盹 —— 它永远不会因为她没做而难受。 */
+   小动物在阴天只是打盹 —— 它永远不会因为你没做而难受。 */
 .jar-row{display:flex;align-items:center;justify-content:center;margin-bottom:20px}
 .jar{position:relative;width:130px;flex:none}
 .jar-lid{
@@ -204,7 +204,7 @@ input,textarea{font-family:inherit}
   border-radius:0 0 20px 20px;transition:background .9s ease;
 }
 .jar[data-lv="4"] .jar-ground{background:linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.4)),#41604e}
-/* 住进来的搭子：排在她挑的那只两侧，一只都不会被挡住 */
+/* 住进来的搭子：排在你挑的那只两侧，一只都不会被挡住 */
 .jar-buddies{display:flex;align-items:flex-end;gap:2px;pointer-events:none}
 .jar-pet .jar-buddies .pet{width:19px;height:19px;cursor:default}
 .jar-buddies:empty{display:none}
@@ -680,8 +680,8 @@ input,textarea{font-family:inherit}
   <div class="sheet-card">
     <h3>使用摘要</h3>
     <p class="lead">
-      这是这台手机上攒下来的统计。<b>里面没有她写的任何任务</b>——只有次数和类别。<br>
-      要不要发出去，她说了算。
+      这是这台手机上攒下来的统计。<b>里面没有你写的任何任务</b>——只有次数和类别。<br>
+      要不要发出去，你说了算。
     </p>
     <textarea id="expText" readonly></textarea>
     <button class="copy-mini" id="copyExp" type="button">复制摘要</button>
@@ -753,7 +753,7 @@ input,textarea{font-family:inherit}
         state.pet       = (s.pet && s.pet.species && PETS[s.pet.species]) ? s.pet : { species: "cat" };
         state.jar       = Object.assign({ energy: 0, dots: 0, seen: 0, lastAt: Date.now() }, s.jar || {});
         /* 老存档迁移：以前用"分"记收集（完成一件约 7 分），现在换成「就一点」（完成一件 = 1 点）。
-           按 7:1 折算过来，她已经收集到的东西一样都不会少，也不会被重复播报。 */
+           按 7:1 折算过来，你已经收集到的东西一样都不会少，也不会被重复播报。 */
         if (typeof (s.jar || {}).dots !== "number") {
           state.jar.dots = Math.max(0, Math.round(((s.jar && s.jar.total) || 0) / 7));
           var seenAt = 0;
@@ -879,8 +879,8 @@ input,textarea{font-family:inherit}
   }
 
   /* ---------------- 小搭子 ----------------
-     唯一规则：它永远不会因为她没做而难过。
-     它只因她的任何动作而变好——包括只是打开这个 App。
+     唯一规则：它永远不会因为你没做而难过。
+     它只因你的任何动作而变好——包括只是打开这个 App。
      这里没有死亡、没有生病、没有"你已经 N 天没来"。 */
   var PET_KEYS = ["cat", "penguin", "hedgehog", "rabbit", "bear", "frog"];
 
@@ -1073,7 +1073,7 @@ input,textarea{font-family:inherit}
     state.pet = { species: key };
     save();
     paintPets();
-    renderJar();          /* 换搭子后要重排罐子里的住户：她挑的那只走到最前面 */
+    renderJar();          /* 换搭子后要重排罐子里的住户：你挑的那只走到最前面 */
     renderPetPick();
     petSpeak("now", "open");
     tip("换了只" + PETS[key].name + "，它归你了");
@@ -1123,8 +1123,8 @@ input,textarea{font-family:inherit}
 
   /* ---------------- 天气罐 ----------------
      因果方向是单向的：
-       她的任何动作 → 天气变好（包括打开 App、倒东西、甚至点「我卡住了」）
-       她什么都不做 → 天气只是慢慢回到「阴」
+       你的任何动作 → 天气变好（包括打开 App、倒东西、甚至点「我卡住了」）
+       你什么都不做 → 天气只是慢慢回到「阴」
      那不是惩罚，是天气本来就会变。下限永远是阴天。
      ——罐子里的待办数量不参与天气，永远不参与。 */
   var JAR_LEVELS = ["阴", "转晴", "晴", "彩虹", "星夜"];
@@ -1188,7 +1188,7 @@ input,textarea{font-family:inherit}
     return 0;
   }
 
-  /* 自然回落：只跟时间有关，跟"她做没做"无关。留 1 小时宽限。 */
+  /* 自然回落：只跟时间有关，跟"你做没做"无关。留 1 小时宽限。 */
   function jarDecay() {
     var j = state.jar;
     if (!j || !j.lastAt) return;
@@ -1305,7 +1305,7 @@ input,textarea{font-family:inherit}
     });
     $("jarFolk").innerHTML = f;
 
-    /* 住进来的搭子：她挑的那只永远在最前面中间，所以这里不重复画它 */
+    /* 住进来的搭子：你挑的那只永远在最前面中间，所以这里不重复画它 */
     var mine = petSpecies();
     var crew = v.buddies.filter(function (key) { return key !== mine && PET_SVG[key]; });
     var half = Math.ceil(crew.length / 2);
@@ -1323,7 +1323,7 @@ input,textarea{font-family:inherit}
 
     /* 无限画布：罐子大小不变，世界缩放去适配。
        视口 130×124（去掉边距），取"最宽的一层"和"最高的一层"里小的那个比例。 */
-    var rowW  = crew.length * 21 + 44 + 10;                        /* 住户 + 她挑的那只 */
+    var rowW  = crew.length * 21 + 44 + 10;                        /* 住户 + 你挑的那只 */
     var wide  = Math.max(rowW, width + 10, 56);
     var tall  = 28 + (nf ? FOLK_TIERS[folkList[nf - 1]] || 34 : 0) + 26;
     var z = Math.min(1, 122 / wide, 116 / tall);
@@ -1886,7 +1886,7 @@ input,textarea{font-family:inherit}
 
   /* ---------------- 使用摘要 ----------------
      只导出次数和类别。任务文字一个字都不带。
-     她按了才生成，发不发也由她决定。 */
+     你按了才生成，发不发也由你决定。 */
   function exportSummary() {
     var st = state.stats;
     var days = Object.keys(st.days).sort();
@@ -2019,7 +2019,7 @@ input,textarea{font-family:inherit}
   clockTick();
   setInterval(clockTick, 15000);
 
-  /* 回到前台时恢复计时（她一定会切走） */
+  /* 回到前台时恢复计时（你一定会切走） */
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden) { clockTick(); if (state.timer) runTick(); }
   });
