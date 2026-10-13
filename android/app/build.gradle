@@ -1,0 +1,35 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'io.github.angelze.jiuyijian'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "io.github.angelze.jiuyijian"
+        minSdk 21
+        targetSdk 36
+        // versionCode = 主×10000 + 次×100 + 修订，永远单调递增
+        versionCode 10401
+        versionName "1.4.1"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // 只为 WebViewAssetLoader：让本地资源跑在 https://appassets.androidplatform.net 这个
+    // 安全来源下，localStorage 才能正常工作（file:// 来源在现代 WebView 上限制很多）
+    implementation 'androidx.webkit:webkit:1.12.1'
+}

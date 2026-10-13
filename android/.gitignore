@@ -1,0 +1,7 @@
+build/
+.gradle/
+local.properties
+
+# 这一份是 dev/build-apk.sh 从仓库根目录的 index.html 拷过来的，不入库 ——
+# 保证「只有一个真源」：根目录的 index.html
+app/src/main/assets/index.html
